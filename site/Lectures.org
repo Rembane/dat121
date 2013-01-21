@@ -1,0 +1,2555 @@
+#+TITLE: Programming Paradigms: Lecture Notes
+#+EMAIL: bernardy@chalmers.se
+#+STYLE: <link rel="stylesheet" type="text/css" href="pp.css" />
+
+* How to read this document
+This document is generated form an org-mode file. 
+   - To access it replace .html by .org in the above link
+   - It can be read in plain text: header level is indicated by number of *
+   - Or more conveniently by using emacs [[http://orgmode.org/][org mode]]. 
+     + Use <TAB> to expand/collapse nodes. 
+     + C-c C-e b to do HTML rendering and open in your browser
+     + Check out the [[http://orgmode.org/orgcard.txt][reference card]].
+* What is a "programming paradigm"?
+** Definition
+
+Paradigm: "A philosophical and theoretical framework of a scientific
+school or discipline within which theories, laws, and generalizations
+and the experiments performed in support of them are formulated;
+broadly: a philosophical or theoretical framework of any kind"
+
+- http://www.merriam-webster.com/dictionary/paradigm
+- http://en.wikipedia.org/wiki/Programming_paradigm
+
+** Paradigms as "ways of organising thought"
+
+:             Programming paradigm 
+:                        = 
+: The basic structuration of thought underlying the programming activity
+
+eg. when you think of a programming problem, what are you thinking of?
+
+- the sequence of actions to perform (first download the file, then
+  display it)
+- how to divide the problem-space into sub-tasks (to compute the
+  spanning tree, i can divide the graph arbitrarily in two, and then
+  ...)
+- what are the agents involved (sensors, a simulator, a renderer, ...)
+- what data do we need to handle? do we need intermediate
+  representations? what are the relations between the different forms?
+
+Note that the same way of thinking is not adapted to all
+problems. Hence, it is important to know many paradigms!
+
+*** To each paradigm corresponds a "mental model of the computer"
+
+How do you think of your computer?
+
+- Memory + instructions (von Neumann model)
+- Rewriting engine
+- (evaluator of) Mathematical functions
+- A network: a number of units of execution communicating with messages 
+- ...
+  
+*** Quotes on the ability to think "big thoughts"
+- Anecdote: MULTICS
+- "Language as thought shaper", from http://soft.vub.ac.be/~tvcutsem/whypls.html
+
+  To quote Alan Perlis: "a language that doesn't affect the way you
+  think about programming, is not worth knowing."
+  
+  The goal of a thought shaper language is to change the way a
+  programmer thinks about structuring his or her program. The basic
+  building blocks provided by a programming language, as well as the
+  ways in which they can (or cannot) be combined, will tend to lead
+  programmers down a "path of least resistance", for some unit of
+  resistance. For example, an imperative programming style is definitely
+  the path of least resistance in C. It's possible to write functional C
+  programs, but as C does not make it the path of least resistance, most
+  C programs will not be functional.
+
+  Functional programming languages, by the way, are a good example of
+  thought shaper languages. By taking away assignment from the
+  programmer's basic toolbox, the language really forces programmers
+  coming from an imperative language to change their coding habits. I'm
+  not just thinking of purely functional languages like
+  Haskell. Languages like ML and Clojure make functional programming the
+  path of least resistance, yet they don't entirely abolish
+  side-effects. Instead, by merely de-emphasizing them, a program
+  written in these languages can be characterized as a sea of
+  immutability with islands of mutability, as opposed to a sea of
+  mutability with islands of immutability. This subtle shift often makes
+  it vastly easier to reason about the program.
+
+  Erlang's concurrency model based on isolated processes communicating
+  by messages is another example of a language design that leads to
+  radically different program structure, when compared to mainstream
+  multithreading models. Dijkstra's "GOTO considered harmful" and
+  Hoare's Communicating Sequential Processes are pioneering examples of
+  the use of language design to reshape our thoughts on programming. In
+  a more recent effort, Fortress wants to steer us towards writing
+  parallel(izable) programs by default.
+
+  Expanding the analogy with natural languages, languages as thought
+  shapers are not about changing the vocabulary or the grammar, but
+  primarily about changing the concepts that we talk about. Erlang
+  inherits most of its syntax from Prolog, but Erlang's concepts
+  (processes, messages) are vastly different from Prolog's (unification,
+  facts and rules, backtracking). As a programing language researcher, I
+  really am convinced that language shapes thought.
+
+** Paradigms and Languages
+*** The big-bang of languages
+file:LangPop.png
+
+- In the old days: languages were built around a central idea,
+  crystallised in a paradigm.
+- Explosion in the number of languages
+- Now, there is a lot of cross-fertilisation between
+  languages: real-world languages implement apparently random collections
+  of features.
+- A given paradigm needs a specific set of features to be supported.
+
+The situation is summed up in [[file:paradigmsDIAGRAMeng.pdf][this diagram]]
+
+*** PL Features we will see
+- Structured data / Records
+- Procedure
+- Recursion
+- Naming and abstraction (higher order)
+- Memory (cell) / State
+- Processes
+- Communication channels
+- Search
+
+** Fluidity between paradigms
+
+As a working programmer, you will often look at a program and think:
+"this is a big mess". Your problem is to make sense of this
+mess. Perhaps the code was written using the "wrong" paradigm; perhaps
+the features to support the paradigms are not available to the
+programmers, and they used a wrong method for the implementation.
+
+- We will learn to properly encode features using others
+- By doing so we will also learn to recognize "a mess" as an encoding
+  of some feature(s) into others.
+
+** ✪ A remark on paradigm shift
+After writing many programs, you may notice patterns emerging. These
+patterns may become codified, either informally (cf. "Design
+Patterns", the seminal book) or formally within the language
+(cf. Haskell Monads). 
+
+Eventually, all programming may revolve around a number of patterns;
+the old ways are abandonned.  This is the paradigm shift: a new way of
+thinking appears. Eventually, a new programming language may be
+developed to support the "patterns" directly.
+
+* Prelude: Abstraction and Types
+Types are essential to get a quick overview of what a program is
+"about". Very useful when facing unknown programs! We use them a lot in
+this course to structure the thinking about programs.
+
+The colon is used ':' to denote the typing relation:
+
+:           someValue : ItsType
+
+*** Examples
+- 0 : Int
+- 1 : Int
+- 1 : Natural
+- 'c' : Char
+- "hello" : String
+- 0.5 : Float
+- (1/2) : Rational
+
+*** Feature: Paramerisation and function types
+
+This is a good time to see our first programming language feature. It
+is so ubiquitious (nearly every language has it -- can you think of a
+counter-example?) that you may not have thought of it as a "feature"
+at all so far. We are talking about the ability to /abstract/ over
+parameters.
+
+
+Take a simple value like this:
+
+:    greetMe = "Hello, Jean-Philippe! How are you today?" 
+:    greetMe : String
+
+
+That's very useless as a program! We want to be able to greet more
+than one person, and parametrize (or abstract) over the name of the
+person greeted:
+
+
+:    greet(name) = "Hello, " ++ name ++ " How are you today?" 
+
+
+A problem of abstraction is that it may not be so clear what the code
+is doing. What could this do if ~name~ is a floating point number? In
+this simple example it is pretty obvious, but in reality things get
+hairy pretty fast without types.
+
+In our example, we may declare that the above code makes sense only
+when ~name~ is a string (in fact /any/ string); and in that case
+~greet(name)~ is a string.
+Equivalently, we will say that ~greet~ is a function converting a
+string into another string, and we will write:
+
+:   greet : String → String
+
+
+The flip side of abstraction is application (or use). Given an
+abstract piece of code, one can use it as many times as desired on
+concrete cases.
+
+:  greet "dog"
+:  greet "there children!"
+
+Philosophical remark: if there is no application possible; abstraction
+is useless --- so they really are two sides of the same coin.
+*** Trivia: types of the following
+1. factorial : ?  
+2. π : ?  
+3. sin : ?
+4. × : ?   (multiplicaton)
+5. derivative : ? (or ∫ : ?) (review this question after FP paradigm...)
+   - hint: remember that derivative maps sin to cos.
+*** TODO Feature: naming things
+
+Naming things is a *special case* of abstraction. (Abstraction is a
+generalisation of naming things).
+
+Example:
+
+: circle_area(r) = 3.14 * r * r
+: circle_perimeter(r) = 2 * 3.14 * r
+
+We can abstact over pi
+
+: module Some_Code(pi : Float)
+:   circle_area(r) = pi * r * r
+:   circle_perimeter(r) = 2 * pi * r
+
+And immediately fix it:
+
+: Some_Code(3.14);
+
+This pattern of abstraction/application is so common that most
+(every?) programming language has special support for it.
+
+Benjamin Pierce's "Good Language" test: Can you abstract over
+everything you can name?
+
+*** Feature: Higher-order parametrisation
+"What can be named/abstracted on" is an important characteristic of
+programming languages. Consider you favorite programming
+language. Does it support abstraction over:
+- integers?
+- charaters?
+- strings?
+- arrays?
+- matrices?
+- blocks of code?
+- functions?
+- types?
+- modules?
+- ...
+
+Higher-order functions refer to functions which are parameterised by
+other functions.  Typically in mathematics abstraction is
+unrestricted. Consider for example the types of derivative and
+integrals!
+
+*** TODO Every problem can be solved by adding a level of indirection
+* Imperative programming
+** Paradigm
+
+1. do this
+2. then do that
+3. then do some otherthing 
+4. if not done, then repeat 2. and 3. 
+
+(cf. cookbook... for beginner cooks :)
+
+*** Computing model
+"von neumann" model of the computer:
+
+- Memory cells
+- Program (assignments, arithmetic, logic, (conditional) jumps)
+
+** Example
+*** Feature: goto
+A pretty basic feature of imperative language is the jump ("goto");
+which may be conditional. Try to figure out what the following code
+does.
+#+begin_example
+   -- Assume A : array of comparable items
+
+   begin:
+        swapped = false
+        i := 1;
+   loop:
+        if A[i-1] <= A[i] goto no_swap
+        swap( A[i-1], A[i] )
+        swapped = true
+   no_swap:
+        i := i+1
+        if i < n then goto loop
+        if swapped goto begin
+#+end_example
+
+*** Feature: Loops & Ifs
+It has been noted that programs written using only gotos are pretty
+hard to understand.  If one programs using gotos, it is advisable to
+restrict oneself to a few easy patterns (loops; or conditional
+execution). Nowadays gotos have almost disappeard from usage and all
+code is written using special-purpose instructions for the above
+patterns. This is an instance of paradigm shift.
+
+Here is a piece of code so-written. Is it easier to understand than
+the above?
+#+begin_example
+   -- Assume A : array of comparable items
+
+      swapped = true
+      while swapped
+        swapped = false
+        for each i in 1 to length(A) - 1 inclusive do:
+          if A[i-1] > A[i] then
+            swap( A[i-1], A[i] )
+            swapped = true
+          end if
+        end for
+#+end_example
+
+*** Feature: procedures
+The above code is parametric over ~A~. If the language supports this
+abstraction we should take advantage of it and present the above as a
+procedure.
+#+begin_example
+    procedure bubbleSort( A : array of comparable items )
+      swapped = true
+      while swapped
+        swapped = false
+        for each i in 1 to length(A) - 1 inclusive do:
+          if A[i-1] > A[i] then
+            swap( A[i-1], A[i] )
+            swapped = true
+          end if
+        end for
+      end 
+    end procedure
+#+end_example
+
+*** Extra reading
+It has not always been clear that GOTO was a bad idea. See for example:
+
+[[http://portal.acm.org/citation.cfm%3Fid%3D362947][GOTO statement considered harmful]], E. G. Dijkstra
+
+** Transformation: Loops ⟶ Gotos
+The pattern in this course will be to understand a feature by
+/translation/ into other, known features. To get warmed up, we will do
+so with a feature we already understand well; namely loops.
+
+*** Source
+Consider the following loop:
+#+begin_example
+while i > 0 do
+  a[i] := b[i]
+  i = i-1
+#+end_example
+
+*** Target
+It can be encoded into the following code, which uses only
+(conditinal) jumps:
+#+begin_example
+test:
+  p := not (i>0)
+  if p then goto done
+  a[i] := b[i]
+  i = i-1  
+  goto test
+done:
+#+end_example
+
+Note in passing that such a job is typically performed by a C (or
+Java...) compiler. Indeed, the computer code has no notion of loop, it
+only knows about jumps
+
+*** Exercise (⋆)
+1. Translate the following to explicit gotos:
+#+begin_example
+do
+   body
+until cond
+#+end_example
+2. Translate insertion sort
+** Transformation: If then else ⟶ Gotos
+In fact the above transformation is parametric on the
+condition and body of the loop. Hence we may just abstract over these
+parts. We will present the next transformation in this format.
+*** Source
+Assuming a boolean-valued expression ~cond~ and two blocks of code
+~part1~ and ~part2~, and the following pattern:
+#+begin_example
+if cond then
+  part1
+else
+  part2
+#+end_example
+*** Target
+It can be translated into:
+#+begin_example
+  p := not(cond)
+  if p then goto label2
+  part1
+  goto done
+label2:
+  part2
+done:
+#+end_example
+*** Computed jumps
+Most computers also feature computed (indirect) jumps. That is, one
+does not jump to a fixed label, but to a variable one. This is once
+more an example of abstraction: the computed goto is a goto which is
+"abstract" over its target.
+
+For example using a computed jump one may translate ~if~ as follows:
+#+begin_example
+if cond then
+  target = label1;
+else
+  target = label2;
+goto done
+label1:
+  part1
+  goto doe
+label2:
+  part2
+end
+#+end_example
+Can you figure out the type of the ~target~ variable?
+*** Exercise (⋆⋆) 
+Translate switch/case construct to code which uses an indirect
+jump. Hint: use an array of labels
+*** Exercise (⋆⋆⋆) 
+Translate the indirect jump in the above to code to direct jumps
+only. (You may use if statements)
+
+** Transformation (Gotos ⟶ Loops)
+The reverse transformation (from jumps to structured constructions) is
+not so easy. That is, there is no general formula that gives you
+"beautiful" code from "spaghetti" code. To do so you must be creative!
+A good idea is to try to recognise the patterns generated above and
+reconstruct the source from them.
+** Feature: parameter passing by reference 
+*** Example
+Passing by reference means that the programmer can name /blocks of
+code/.
+
+That is, if we have a piece of code that often swaps two variables:
+
+#+begin_example
+  tmp := x;
+  y := x;
+  x := tmp;
+  ...
+  ...
+  tmp := x;
+  y := x;
+  x := tmp;
+  ...
+  ...
+#+end_example
+one can capture the pattern in a procedure
+#+begin_example
+procedure swap(by ref x, by ref y) 
+  local var tmp;
+  tmp := x;
+  y := x;
+  x := tmp;
+#+end_example
+and simply call where needed.
+
+Can you see why this would not work with parameter passing by value?
+*** Why is passing by reference useful?
+- "expressive power" : you can factor out parts of the computation
+  that update any (sub-part of) the state
+- save time : no need to copy around things
+
+*** Reminder: References (aka. pointers)
+**** Addresses
+Assume a variable x:
+
+#+begin_example
+ x : Integer {-Variable -}
+#+end_example
+
+Then
+
+#+begin_example
+ addressOf(x) : PointerTo Integer
+#+end_example
+   ≃ where in the memory is the variable x
+
+We can express this with the following typing for ~addressOf~:
+: addressOf : Integer {-By Ref-} → PointerTo Integer
+
+**** "De-reference"
+: variableAt : PointerTo Integer → Integer 
+
+**** Trivia: whats the meaning of addressOf(addressOf(x))?
+ none! because addressOf(x) is just a value, there is no location for it in the memory.
+**** Exercise (⋆)
+re-write the above in C syntax
+*** Translation: from reference-parameters to pointers 
+**** Source:
+(Supposing the language supports passing arguments by reference:)
+
+: procedure increment(by ref. x : Int)
+:   x := x + 1
+
+with a call
+
+: increment(y)
+
+**** Target
+
+(Assuming the language supports pointers:)
+
+: increment(x : PointerTo Int)
+:  variableAt(x) := variableAt(x) + 1
+
+and the call
+
+: increment(addressOf(y))
+*** Exercise: Does Java use call by reference? 
+  Show example(s) that says yes/no
+** Transformation: inlining procedure calls
+This is the reverse of naming code blocks.
+*** Source
+#+begin_example
+procedure g(by ref. x,y)
+  x := x + y
+
+procedure f(by ref. x,y)
+  g(x,y)
+  x := x + 1
+  g(y,x)
+
+f(a,b)
+#+end_example
+*** Intermediate
+#+begin_example
+procedure f(x,y)
+  x := x + y
+  x := x + 1
+  y := y + x
+
+
+f(a,b)
+#+end_example
+
+*** Final
+#+begin_example
+a := a + b
+a := a + 1
+b := b + a
+#+end_example
+
+*** Exercise: redo the transformations above, assuming call-by-value.
+*** Question: What happens when the original program is recursive?
+The process never finishes!  
+
+Hence inlining is an ok model as a dynamic model, but not as a static
+model in the presence of recursion.
+** Transformation: Procedures ⟶ Gotos & Variables
+Source:
+#+begin_example
+function sqrt(x : Float) : Float
+  result := x / 2 
+  while distance (result * result, x) > ε
+    -- Newton approx to refine the result
+    ...
+  return result;
+
+-- the calls:
+sqrt(12345)
+...
+...
+sqrt(6789);
+#+end_example
+
+Target:
+#+begin_example
+sqrt:
+-- argument in global variable 'sqrtArgument'
+sqrtResult := sqrtArgument / 2;
+-- And then newton algorithm 
+...
+...
+-- at this point, sqrtResult contains the result.
+goto sqrtCaller;
+
+sqrtArgument := 12345;
+sqrtCaller := out1;
+goto sqrt;
+out1:
+...
+...
+sqrtArgument := 6789;
+sqrtCaller := out2;
+goto sqrt;
+out2:
+#+end_example
+
+*** Trivia: What happens when the original program is recursive?
+
+- Loop (dynamic)
+- variables: a mess...
+** Transformation: Explicit stack
+
+*** 1st example: factorial.
+Translation of a recursive call:
+ - save local variables (push on a stack)
+ - set caller (return address)
+ - goto
+ - restore local variables (pop)
+
+#+begin_example
+-- Example call to 'fact'
+fact(13)
+...
+...
+function fact (n:Int)
+  if n = 0 then
+    return 1
+  else
+    return n * fact(n-1)
+#+end_example
+
+Straightforward application of rules:
+
+#+begin_example
+-- Example call to 'fact'
+caller := out;
+n := 12;
+goto fact;
+out:
+
+...
+...
+
+-- Definition of 'fact':
+fact:
+if n = 0 then
+  result := 1;
+  goto caller;
+else 
+  push(n,caller);         -- save locals         \
+  caller := continue;     -- remember caller      |
+  n := n-1;               -- set arguments        |    This is the translation
+  goto fact;              -- jump                 |        of the call  'fact(n-1)'
+continue:                                         |
+  pop(n,caller);          -- restore locals       /
+  result := n * result;   -- result (on the rhs of :=) is the result of the recursive call.
+  goto caller;            
+#+end_example
+
+*** 2nd example: factorial (alternative algorithm)
+**** Source
+#+begin_example
+function fact (n:Int,acc:Int)
+  if n = 0 then
+    return acc
+  else
+    return fact(n-1,n * acc)
+
+-- assuming that fact will be called with (acc = 1) from the outside:
+function wrapper(n:Int)
+  return fact(n,1);
+#+end_example
+**** Question: explain the algorithm.
+**** Target (by straightforward application of rules)
+#+begin_example
+wrapper:
+  acc := 1;
+  caller := out;
+  goto fact
+  out:
+
+fact: -- n,acc,caller are defined here.
+if n = 0 then
+  result := acc;
+  goto caller;
+else
+  push (n,acc,caller)
+  acc := acc * n;
+  n := n-1;
+  caller := continue;
+  goto fact;  
+  continue:
+  pop (n,acc,caller)
+  result := result; -- just forward the result of the recursive call.
+  goto caller;
+#+end_example
+**** Improvement:
+But:
+ - The local variables are saved for nothing: they are not used after they are popped!
+ - The result := result statement is useless.
+
+Hence we obtain:
+
+#+begin_example
+fact: -- n,acc,caller are defined here.
+if n = 0 then
+  result := acc;
+  goto caller;
+else
+  push (caller)
+  acc := acc * n;
+  n := n-1;
+  caller := continue;
+  goto fact;  
+  continue:
+  pop (caller)
+  goto caller;
+#+end_example
+
+What is the effect of the following?
+
+:  push (caller)
+:  caller := continue
+:  goto fact
+
+It fact, it is the same as 
+
+:  goto fact
+
+Indeed, after returning to "continue", the caller will just be popped
+from the stack; and we'll jump to it.  This would also be done by the
+normal "goto caller" return statement if we had not overwritten the
+caller with continue.
+
+
+Hence, the stack can be removed altogether! This is called /tail-call optimisation/. Why?
+
+
+We get:
+#+begin_example
+wrapper:
+  acc := 1;
+  caller := out;
+  goto fact
+  out:
+
+fact:
+if n = 0 then
+  result := acc;
+  goto caller;
+else
+  acc := n * acc; -- note the order of assignments
+  n := n-1;
+  goto fact:
+#+end_example
+
+**** Final version
+Finally we can merge in the wrapper and reconstruct a loop:
+#+begin_example
+acc := 1;
+while n /= 0 do
+  acc := n * acc;
+  n := n-1;
+result := acc;
+#+end_example
+and even add some extra polish:
+#+begin_example
+function fact (n)
+  acc := 1;
+  foreach i in 1..n do
+    acc := i * acc;
+result := acc;
+#+end_example
+* Interlude: Garbage Collection
+aka. Automatic memory management
+The memory is freed automatically for you! (Magic!?)
+- Nah, chase pointers. (but what is a pointer)?
+
+Why GC discussed here?
+- Allows for much easier OOP (sharing)
+- Practically impossible to do FP/Logic without it (sharing!)
+
+** Q: Why does Firefox leak memory while it uses GC?
+** Q: why are imperative languages usually not using GC?
+* Object-oriented programming
+** Coupling data and related code
+*** Toy example: Date
+
+#+begin_example
+class Date
+
+  field
+    year : Integer
+    month : Integer
+    day : Integer
+
+
+  method ShiftByDays(days : Integer);
+
+  constructor ymd(y,m,d : Integer)
+  constructor today  -- query the OS for current date
+
+
+-- Example use:
+appointment = today;
+appointment.shiftByDays(7);
+#+end_example
+
+**** Note: Objects are, almost always, passed by reference.
+Why is that?
+**** Translated into plain records + procedures
+
+#+begin_example
+record Date
+  Year : Integer
+  Month : Integer
+  Day : Integer
+  
+function today : Date;
+
+procedure ShiftByDays(this : Date by reference; days : Integer);
+-- Why is "by reference" important?
+
+-- Example use:
+appointment = today;
+shiftByDays(appointment,7);
+#+end_example
+
+** Encapsulation 
+Mechanisms to make the fields private
+
+*** Paradigm Shift: Abstract Data Type (ADT) 
+ - Example: "stack", "priority queue", ... from your data structures course
+ - Every data type comes with a specification
+ - ... maybe in the form of _unit tests_
+ - Notion of data-invariant:
+     + a condition which the representation must verify at all times
+     (seen form outside the object)
+ - Advantage: it's easy to change representation of data
+
+ - Note: not every piece of data fits the ADT model. 
+   Example: "Person" record.
+ - Dogma: never any direct field access (cf. "set" and "get")
+
+** Inheritance
+*** Toy example:
+
+#+begin_example
+class Animal
+  method Pet
+     print "Undefined"
+
+class Dog inherits Animal
+  method Pet
+     print "Shake tail"
+
+class Cat inherits Animal 
+  method Pet
+     print "Mew"
+
+
+procedure Test(c : Animal)
+  c.Pet
+
+Test(new Dog);
+Test(new Cat);
+#+end_example
+
+*** Transformation: embed method pointers
+
+The above example gets translated as follows:
+
+#+begin_example
+record Animal
+  field
+    Pet : function;
+
+record Dog 
+  field
+    Pet : function;
+
+procedure petDog(this : Dog by reference);
+  print "Shake tail"  -- (1)
+
+function createDog : Dog
+  return new Dog(Pet = petDog);  
+
+record Cat
+  field 
+     Pet : function;
+
+procedure petCat(this : Cat by reference);
+  print "Mew"
+
+function createCat : Cat
+  return new Cat(Pet = petCat);  
+
+procedure Test(c : Animal by reference)
+  c.Pet(c); -- (1)
+
+
+Test(cast<Animal> createDog); -- (2)
+Test(cast<Animal> createCat); -- (2)
+#+end_example
+
+**** Question: what happens on line (1)
+
+- 'c.Pet' is a function pointer;
+- the function stored in that variable is called.
+- if c.Pet has been correctly set, either dog/cat case will be called.
+
+**** Question: why are the casts (2) valid?
+The layout of the parent class is exactly the same as that of the subclass.
+**** Question: what if the Dog class had an extra method/field?
+(In general, there can be more fields/methods in the subclass, found _after_ the fields of th e top class)
+**** Liskov substitution principle and Polymorphism
+
+if class B inherits class A, then, for any x,
+
+:   x : B  ⇒  x : A
+
+This means that 
+
+1. 'x' has multiple types 
+
+2. Whenever a function 'f' has an parameter of type 'A', one can pass
+   an argument of type 'B'. By deriving from 'A', a lot of code is
+   automatically ready to work with 'B'.  (Conversely, if you write
+   code working for A, it will be useful in many contexts)
+
+This is one instance of an important phenomenon: /polymorphism/. The
+kind of polymorphism linked with inheritance is /inclusion
+polymorphism/. Recall the definition of set-inclusion:
+
+
+:         B ⊆ A     iff     x ∈ B  ⇒  x ∈ A
+
+One says that B is a subtype of A.
+
+Read (✪) more about polymorphism on Wikipedia.  (I prefer the
+article on [[http://en.wikipedia.org/wiki/Polymorphism_(computer_science)][polymorphism]],
+http://en.wikipedia.org/wiki/Liskov_substitution_principle is badly
+written in my opinion)
+**** Question: could you copy objects instead of passing by reference?
+Hint: what happens in the "Test" function in the above example?
+*** Exercises
+Apply the transformation on each of the following examples:
+
+- call the function 'Vocalise' by default in the 'Pet' method
+- add a StrayCat subclass which: 
+  + scratches instead of meowing;
+  + counts of the number of wounds inflicted.
+
+*** What happens when functions have arguments?
+In many languages, the type of the arguments of derived functions must
+be the SAME as that of the overridden function.
+**** Contra-variance (⋆⋆)
+A perhaps natural expectation is that you could make the arguments
+change as the type of the object. Ex.:
+
+
+: class Additive 
+:   method Add(Additive)
+: 
+: class Integer extends Additive
+:   method Add(Integer)
+
+... but in fact this violates the substitution principle!
+
+Exercise: use the above two classes in a way that shows violation of
+substitution.
+
+See also the [[http://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)][wikipedia article]].
+
+*** Extension (✪): function tables
+
+- Is the 'pet' function pointer ever modified?
+- How can we save space if there are many methods per class? 
+
+⟶ One more indirection!
+**** Example
+#+begin_example
+record AnimalMethods
+  Pet : function
+  Vocalise : function
+
+record DogMethods
+  Pet : function
+  Vocalise : function
+  
+dogMethods = {Pet := petDog, ...}
+#+end_example
+
+*** Paradigm Shift
+
+  - Multiple "cases" can be implemented by inheriting a common class
+  - Dogma: no "if".
+  - Specific behaviour is implemented in derived methods
+  
+  - Open question: multiple dispatch!
+
+*** (✧) Reading/Exercise: Javascript prototypes
+http://en.wikipedia.org/wiki/ECMAScript_syntax#Objects
+
+** Multiple-inheritance & interfaces
+*** Motivation
+#+begin_example
+class Computer
+class Phone
+class SmartPhone inherits Computer, Phone
+#+end_example
+
+
+#+begin_example
+class Teacher
+class Student
+class GradStud inherits Teacher, Student
+#+end_example
+
+1. Better reuse of code (possibly the derived class can use code from
+   both its parents)
+2. More polymorphism!
+
+*** Diamond problem
+**** On a conceptual level:
+#+begin_src dot :file diamond.svg :cmdline -Kdot -Tsvg
+digraph G {
+   node [shape="record"];
+   "Person" [label="{Person | { fields | {name | birthDate | ...}}}"];
+   Person -> Student -> "Grad. Student"
+   Person -> Teacher -> "Grad. Student"
+}
+#+end_src
+
+#+results:
+[[file:diamond.svg]]
+
+Does a grad student have two names? ... no
+BUT some other fields might need to be duplicated, if they have a
+function specific to (Student, or Teacher class). (eg. A grad student
+has a Boss as a Teacher and another boss as a Student)
+
+⟶ Big headache
+
+**** On an implementation level:
+
+#+begin_example
+class Person
+  Name
+  BirthDate
+
+
+class Student inherits Person
+  CourseGrade
+  ...
+
+class Teacher inherits Person
+  numberOfStudents 
+  ...
+
+class GradStud inherits Student, Teacher
+#+end_example
+  
+What is the record corresponding to GradStud?
+If we copy all the fields, we get:
+
+#+begin_example
+Name
+BirthDate
+CourseGrade
+Name
+BirthDate
+numberOfStudents
+#+end_example
+
+
+The record can be casted to Student (as normal, the 3 last fields will
+never be accessed by methods in the Student class) or Teacher (by
+adding 3 to the pointer).
+
+Aside: what if a method in the class Student updates the Name? Then
+there is a problem: the gradstudent will end up with 2 different
+Names!
+
+Let's say we want to have a single copy of Name and BirthDate:
+#+begin_example
+Name
+BirthDate
+CourseGrade
+numberOfStudents
+#+end_example
+
+Problem: what happens if you see the GradStud as a Teacher?
+--> The translation to "pure" imperative programming becomes much more complicated. 
+
+*** Interfaces
+
+As it is often the case, the issue is due to side effects
+(modification of hidden state). It appears only if the shared class
+has mutable fields. An important case of immutable fields are methods
+(their code is fixed once an for the lifetime of the object, in fact
+it is the same for all objects in a class). Hence the notion of
+/Interface/: a class without fields. In Java, there is special support
+for interfaces, and one can inherit many of them.
+
+Interfaces:
+ - ✓ polymorphism 
+ - × code-reuse    
+
+**** Exercise (⋆⋆)
+Modify the translation above to support interfaces
+
+**** Exercise (⋆⋆)
+Translation of interfaces via method tables.
+
+** Forward reference: ``objects are poor man's [[closures]]''
+ Note the similarity between objects and closures: they are both
+ encoded as state/environment + fct. pointer.
+** TODO Traits & Objects as fixpoints (✪)
+* Functional programming
+** Reading (as necessary to understand Haskell syntax): "Learn you a Haskell, for great good!"
+http://learnyouahaskell.com/
+** A bit of syntax
+*** Function definitions
+Similar to mathematical notation:
+
+: minimum (x,y) = if x < y 
+:                   then x
+:                   else y
+
+*** (λ) abstractions / local functions
+
+In the literature:
+
+: minimum = λ(x,y). if x < y 
+:                       then x
+:                       else y
+
+
+In Haskell:
+
+: minimum = \(x,y) -> if x < y 
+:                       then x
+:                       else y
+
+*** Application is LEFT associative.
+- No need for parentheses:
+  : f x   ==  f(x)
+- Left leaning:
+  : f x y == (f x) y  ==  (f(x))(y)
+
+*** TODO Forward reference: function arrow is RIGHT associative
+
+** Algebraic Types
+   
+If A and B are data types, then...
+
+- what is  A + B ?
+  + similar to union in C (what is the difference?)
+
+- what is A × B ?
+  + similar to records in Pascal/Ada/...; struct in C (difference?)
+
+
+Let's count the number of inhabitants of the type:
+
+:    #(A + B) = #A + #B
+:    #(A × B) = #A × #B
+
+To "bootstrap" we also need types 0 (empty type, unit of +) and 1 (singleton, unit of ×)
+
+*** Trivia (✪): what is A → B, algebraically?
+*** Examples
+
+: Bool ≅ 1 + 1
+
+Giving a name to the cases:
+
+: Bool = (True ↦ 1) + (False ↦ 1)
+
+In Haskell syntax:
+
+: data Bool = True | False
+
+Lists can be defined as follows, using _recursion_:
+
+: List a = (Nil ↦ 1) + (Cons ↦ (a × List a))
+
+
+Haskell syntax:
+
+: data List a = Nil | Cons a (List a)
+
+*** TODO Values and Pattern Matching
+inhabitants of A + B; A × B; and matching over them.
+*** Transformation: Algebraic data type ⟶ inheritance
+- ×: supported by records
+- +: one can use inheritance to implement sum types, as in the
+  following example.
+
+#+begin_src haskell
+data ListOfInt = Cons Int ListOfInt | Nil
+
+sum : ListOfInt -> Int
+sum Nil = 0
+sum (Cons x xs) = x + sum xs
+#+end_src
+#+begin_src pseudo-java
+
+interface ListOfInt 
+   int sum(); 
+
+class Nil extends ListOfInt
+  -- no field
+  int sum() {
+    return 0;
+  }
+
+class Cons extends ListOfInt
+  int head;
+  ListOfInt tail;
+  int sum () {
+    return head + tail.sum;
+  }
+#+end_src
+**** (⋆⋆⋆) Polymorphic version
+
+#+begin_src haskell
+data List a = Cons a (List a) | Nil
+
+fold k f Nil = k
+fold k f (Cons a xs) = f a (fold k f xs)
+#+end_src
+
+#+begin_example
+interface List<A> {
+  B fold<B>(B k¸ Function<A,B> f)
+}
+
+class Cons<A> extends List<A> {
+  A head;
+  List<A> tail;
+
+  B fold<B>(k,f) {
+    return f.apply(head,xs.fold(k,f));
+  }
+}
+
+class Nil<A> extends List<A> {
+ -- no field
+ 
+  B fold<B>(k,f) {
+    return k;
+  }
+}
+
+#+end_example
+Missing aspect: one should not allow to implement other instance of
+the List interface.
+
+(Note: one could also just represent Nil by a null object)
+
+**** Remark: the expression problem
+
+- In an OO language such as Java, it is convenient to add new cases to
+  sum types, but it is cumbersome to add a new algorithm. (In the
+  above example, 'fold' is scatered among 3 classes/interfaces)
+- In a language such as Haskell, it is convenient to add a new
+  algorithm (the fold function is localised at a single place), but
+  cumbersome to add a case in a sum type (why?).
+
+** Higher-order functions
+*** Example: fold (sometimes called reduce)
+
+Consider the following function, to sum the elements in a list:
+#+begin_src haskell
+sum Nil          = 0
+sum (Cons x xs)  = x + sum xs
+#+end_src
+
+Consider now the following function, which multiplies the elements in
+a list:
+#+begin_src haskell
+product Nil         = 1
+product (Cons x xs) = x * product xs
+#+end_src
+
+*Same pattern ⟶ Abstract out the difference ! (Parameterize)*
+
+Exercise: fill in the question mark in the following snippet
+#+begin_src haskell
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr f k xs = ?
+#+end_src
+such that
+
+: sum     xs = foldr (\x y -> x + y) 0 xs
+and
+: product xs = foldr (\x y -> x * y) 1 xs
+
+
+- Notes
+  + I give some help by writing the type of the foldr function; but 
+    you can ignore it for now.
+  + 'foldr' is a function taking another function in parameter: a
+    higher order function.
+
+*** Example: map
+
+Consider these two examples:
+: multiplyBy n Nil = Nil
+: multiplyBy n (Cons x xs) = Cons (n*x) (multiplyBy n xs)
+
+: squareAll Nil = Nil
+: squareAll (Cons x xs) = Cons (x^2) (squareAll xs)
+
+
+Capture the pattern in the following 
+: map :: (a -> b) -> List a -> List b
+: map f xs = ?
+
+*** Polymorphism comes back (⋆⋆⋆)
+
+Note that, both in foldr and map, by abstracting over the functions to
+apply on the elements on the list, the resulting code is also
+abstracted from the /type/ of the elements in the list. That is, (eg.)
+map works on lists of /anything/, as long as the type of function that
+we pass to map (1st argument) matches. This is captured formally in
+the type of map.
+
+Effectively, map has mutliple types. Because the type is parameterized
+over any types (a,b), this is called /parametric polymorphism/.
+
+*** Reading: 
+"Can Programming Be Liberated From the von Neumann Style?", John
+Backus, 1977 Turing Award Lecture
+http://www.thocp.net/biographies/papers/backus_turingaward_lecture.pdf
+(recommended to read up to p. 620).
+
+** Transformation: Currification
+
+#+begin_example
+f : (A × B) → C
+f = ...
+
+g : A → (B → C)
+g = \a -> \b -> f (a,b)
+
+h : (A × B) → C
+h (a,b) = (g a) b
+#+end_example
+
+Remark: f ≡ h
+
+*** Note: try to read A → B as B^A
+... then, what is currification?
+**** Extra: can you implement other algebraic laws?
+
+** Removing Higher-Order functions
+*** Transformation: Inlining higher-order functions
+
+Example/Exercise: from "filter/map" to for loop...
+
+This transformation is essentially the inverse of abstraction.
+
+#+begin_src haskell
+map :: (a -> b) -> List a -> List b
+map f xs = case xs of 
+   [] ->  []
+   (x:xs) -> f x : map f xs
+
+multiply n xs = map (\x -> x * n) xs
+#+end_src
+
+Substitute the formal parameter 'f' by its argument '(\x -> x * n)' in
+the code of 'map' (this is called β-recuction):
+
+#+begin_src haskell
+multiply n xs = case xs of
+    [] ->  []
+    (x:xs) -> (\x -> x * n) x : map (\x -> x * n) xs
+#+end_src
+
+But we know that multiply n xs == map (\x -> x * n) xs
+
+#+begin_src haskell
+multiply n xs = case xs of
+    [] ->  []
+    (x:xs) -> (\x -> x * n) x : multiply n xs
+#+end_src
+
+β-reduce again:
+
+#+begin_src haskell
+multiply n xs = case xs of
+    [] ->  []
+    (x:xs) -> x * n : recursiveCall f xs
+#+end_src
+
+Downsides:
+- explosion of the code size
+- maybe impossible! (eg. the code of map is not available -- map itself is abstract)
+
+*** Transformation: Defunctionalisation (explicit <<closures>>)
+**** Example
+- Source
+#+begin_src haskell
+map :: (a -> b) -> List a -> List b
+map f [] = []
+map f (x:xs) = f x : map f xs
+
+call0 = map (\x -> x + 4) 
+call1 n = map (\x -> x * n)
+#+end_src
+
+- Target
+#+begin_src haskell
+map :: Closure -> List a -> List b
+map f [] = []
+map f (x:xs) = apply f x : map f xs
+
+call0 xs = map Add4 xs
+call1 n = map (MultiplyBy n)
+
+apply (MultiplyBy n) x = x * n
+apply (Add4)         x = x + 4
+
+data Closure = MultiplyBy Int | Add4 | ...      -- (ref:closure definition)
+#+end_src
+
+The trick is to replace each function parameter by a data-type. The
+constructors of the data type are made to represent the possible
+arguments. The closure stores all the variables of the environment
+used in the argument.
+
+Note that there may be more kind of closures, so there may be more
+cases in [[(ref:closure definition)]].
+
+**** Read:
+[[http://en.wikipedia.org/wiki/Closure_(computer_science)][Closures on wikipedia]]
+
+**** Exercise (⋆⋆): Implement the above example C. 
+Hint: Instead of a 'tag', use a function pointer.
+
+Here's "pseudo-c" draft to get you started:
+
+#+begin_src pseudo-c
+list map(closure* c, list p) {
+   while (p /= null) {
+     apply(c,p.info); 
+     // Attn: to be faithful to the Haskell code we'd need to create a new list.
+   }
+}
+
+struct {
+  int *f();
+  byte[] env;
+} closure
+
+
+int apply(closure* c, args...) {
+  c.f(c.env,args);
+}
+
+
+int add4(byte* env, int x) {
+  return x+4;
+}
+
+// call0
+add4Closure = new (void*); // we only need space for a function pointer, because add4 has no environment.
+add4Closure.f = add4;
+map(add4Closure,xs);
+
+#+end_src
+
+Note the similarity with the implementation of [[objects]]!
+
+**** Exercise: Implement the above example Java
+Hints
+ - Instead of a tag, make a derived class ('apply' is a method)
+ - Or just apply the Alg. Data Type ==> Classes transformation seen above.
+
+#+begin_src pseudo-Java
+List map(Closure c, List xs) {
+  while (xs != null) {
+    ... construct new list
+    ys.info = c.apply(xs.info);
+  }
+}
+
+interface Closure
+  int apply(int);
+  
+class Add4 implements Closure
+  int apply(int x);
+    return x+4
+
+class MultiplyBy implements Closure
+  field
+    int n; 
+  int apply(int x);
+    return x * n
+  constructor MultiplyBy(int n_arg) {
+     n = n_arg;
+  }
+
+// call0
+map(new Add4(), xs)
+
+// call1
+map(new MultipyBy(n), xs)
+#+end_src
+
+See the similiarity with Observer/EventListener pattern in Java:
+
+#+begin_src 
+interface Listener -- "Closure"
+  void respond(); -- "apply"
+
+class MyPrintAction implements Listener -- "Function representation"
+   String text -- "environment"
+   respond() {
+     print text;
+   }
+  
+button.onPress(new MyPrintAction("Hello there"));
+#+end_src
+
+Hence: "Objects are Poor Man's closures."
+
+**** Exercise: polymorphic closures
+In the above we had closures of type Int -> Int. How would you support
+polymorphic closures?
+
+** Transformation: Explicit State
+
+- How can we represent imperative programs without using side effects?
+- Idea: pass around the "state of the world" explicitly
+- Functions are transformed as follows:
+
+:  print : String -> () -- in an imperative language, the state is implicit
+
+:  print : String -> State -> State × () -- after making the state explicit
+
+
+Assuming the "state of the world" is only the contents of the output
+file, then 'print' does what?
+
+*** Exercise: implement "safePrint" functionally...
+
+#+begin_example
+procedure safePrint(line) : ErrorCode
+  if outOfInk then
+    return -1
+  else
+    print(line)
+    return 0
+#+end_example
+
+... given the imperative function
+
+: outOfInk : Bool
+
+**** Questions
+ 1. What is the type of outOfInk in the functional representation ?
+ 2. What is the translation ?
+
+**** Answers
+outOfInk :: State -> Bool × State
+
+safePrint :: String -> State -> ErrorCode × State
+safePrint    line      s1 =
+   let (noInk,s2) = outOfInk s1
+   in  if noInk then (-1,s2)
+                else let (s3,()) = print line s2
+                     in  (0,s3)
+
+*** Imperative syntax in Haskell
+
+'IP a' = type of imperative programs returning a value of type a.
+
+: type IP a = State -> State × a
+
+Generic way to sequence two 'IP a':
+
+#+begin_src haskell
+andThen :: IP a -> IP b -> IP b
+f `andThen` g = \s0 -> let (s1,a) = f s0
+                           (s2,b) = g s1
+                       in  (s2,b)
+#+end_src
+
+But what if the 2nd program uses the returned value of the 1st?
+Then (in general) the 2nd program must depend on 'a':
+
+#+begin_src haskell
+andThen :: IP a -> (a -> IP b) -> IP b
+f `andThen` g = \s0 -> let (s1,a) = f s0
+                           (s2,b) = g a s1
+                       in  (s2,b)
+#+end_src
+
+If you _can_ define a function with the above type, then Haskell gives
+you special syntax for imperative programming. If you give:
+
+#+begin_src haskell
+instance Monad IP where
+  (>>=) = andThen
+  return x = \s -> (s,x)
+  -- when x does not depend on the state
+#+end_src
+
+Then the following is valid:
+
+#+begin_src haskell
+  safePrint line = do
+    noInk <- outOfInk  
+    if noInk
+      then return -1
+      else do print line
+              return 0
+#+end_src
+            
+In fact, the meaning of "imperative" is given by that function -- andThen in our case:
+
+#+begin_src haskell 
+safePrint line = 
+  outOfInk `andThen` \noInk ->
+  if noInk 
+    then return -1
+    else print line `andThen` \() ->
+         return 0
+#+end_src
+
+** Paradigm shift: HOT!
+Higher-Order and Typed
+- Any part of a function can be abstracted over (before one could not
+  abstract over functions)
+  + Possibility to make the code more clear
+  + Good for reuse!
+- Types capture a coarse-grained meaning of each function
+  + One does not get lost in keeping track of details (so easily)
+  + Can use function types to represent objects that were before complex data structures.
+    - example: A set can be represented by its characteristic function
+    - There are tradeoffs (performance!)
+- Further reading (⋆) 
+   + Haskell vs. Ada vs. C++ vs. Awk vs. ... ─ An Experiment in Software Prototyping Productivity
+   + especially, sec. 6.1, 7, 8
+   + http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.117.1208&rep=rep1&type=pdf
+
+** Purity and its Consequences
+
+Did you know that side effects...
+ - are a common source of bugs?
+ - make testing difficult?
+ - make reasoning difficult?
+ - make parallelizing diffcult?
+ - cause cancer?
+
+*** Referential transparency
+
+| Concept                | Example |
+|------------------------+---------|
+| Mathematical function  | sin     |
+| Function in (say) Java | getChar |
+
+The behaviour of sin depends only on its arguments; whereas the
+behaviour of getChar depends on an (implicit) environment.
+
+In other words, all the dependencies of a function are /explicit/.
+
+**** Attention: constrast with the Haskell function getChar
+
+: getChar :: IO Char
+
+and remember... 
+
+: IO x  ≃   StateOfTheWorld -> (StateOfTheWorld, x)
+
+
+**** TODO: sin + cos
+
+*** Testing is /much/ easier
+
+Example: 
+
+
+- emulate the user pressing key 'x'
+: a = getChar()
+- verify a == 'x'
+
+Contrast with:
+
+: sin π == 0 
+
+In general:
+- no guesswork to know what a function depends on
+- can (relatively) easily explore the input space of the function
+
+*** More optimisations possible (which ones?)
+- CSE (gotchas)
+- Fusion
+- ...
+*** Easier parallelism/concurrency (cf. Erlang)
+
+:    x = 0
+:    x = x+1 |in parallel with| x = x + 1
+  
+    Value of x ?     
+
+*** Sharing is ALWAYS safe! (see in a moment)
+*** Possible to use laziness  (see in a moment)
+*** John Carmack on Purity:
+
+http://www.altdevblogaday.com/2012/04/26/functional-programming-in-c/
+
+- Functional Programming in C++
+
+Probably everyone reading this has heard “functional programming” put
+forth as something that is supposed to bring benefits to software
+development, or even heard it touted as a silver bullet.  However, a
+trip to Wikipedia for some more information can be initially
+off-putting, with early references to lambda calculus and formal
+systems.  It isn’t immediately clear what that has to do with writing
+better software.
+
+My pragmatic summary: A large fraction of the flaws in software
+development are due to programmers not fully understanding all the
+possible states their code may execute in.  In a multithreaded
+environment, the lack of understanding and the resulting problems are
+greatly amplified, almost to the point of panic if you are paying
+attention.  Programming in a functional style makes the state
+presented to your code explicit, which makes it much easier to reason
+about, and, in a completely pure system, makes thread race conditions
+impossible.
+
+I do believe that there is real value in pursuing functional
+programming, but it would be irresponsible to exhort everyone to
+abandon their C++ compilers and start coding in Lisp, Haskell, or, to
+be blunt, any other fringe language.  To the eternal chagrin of
+language designers, there are plenty of externalities that can
+overwhelm the benefits of a language, and game development has more
+than most fields.  We have cross platform issues, proprietary tool
+chains, certification gates, licensed technologies, and stringent
+performance requirements on top of the issues with legacy codebases
+and workforce availability that everyone faces.
+
+If you are in circumstances where you can undertake significant
+development work in a non-mainstream language, I’ll cheer you on, but
+be prepared to take some hits in the name of progress.  For everyone
+else: No matter what language you work in, programming in a functional
+style provides benefits.  You should do it whenever it is convenient,
+and you should think hard about the decision when it isn’t convenient.
+You can learn about lambdas, monads, currying, composing lazily
+evaluated functions on infinite sets, and all the other aspects of
+explicitly functionally oriented languages later if you choose.
+
+C++ doesn’t encourage functional programming, but it doesn’t prevent
+you from doing it, and you retain the power to drop down and apply
+SIMD intrinsics to hand laid out data backed by memory mapped files,
+or whatever other nitty-gritty goodness you find the need for.
+
+- Pure Functions
+A pure function only looks at the parameters passed in to it, and all
+it does is return one or more computed values based on the parameters.
+It has no logical side effects.  This is an abstraction of course;
+every function has side effects at the CPU level, and most at the heap
+level, but the abstraction is still valuable.
+
+It doesn’t look at or update global state.  it doesn’t maintain
+internal state.  It doesn’t perform any IO.  it doesn’t mutate any of
+the input parameters.  Ideally, it isn’t passed any extraneous data –
+getting an allMyGlobals pointer passed in defeats much of the purpose.
+
+Pure functions have a lot of nice properties.
+
+Thread safety.  A pure function with value parameters is completely
+thread safe.  With reference or pointer parameters, even if they are
+const, you do need to be aware of the danger that another thread doing
+non-pure operations might mutate or free the data, but it is still one
+of the most powerful tools for writing safe multithreaded code.
+
+You can trivially switch them out for parallel implementations, or run
+multiple implementations to compare the results.  This makes it much
+safer to experiment and evolve.
+
+Reusability.  It is much easier to transplant a pure function to a new
+environment.  You still need to deal with type definitions and any
+called pure functions, but there is no snowball effect.  How many
+times have you known there was some code that does what you need in
+another system, but extricating it from all of its environmental
+assumptions was more work than just writing it over?
+
+Testability.  A pure function has referential transparency, which
+means that it will always give the same result for a set of parameters
+no matter when it is called, which makes it much easier to exercise
+than something interwoven with other systems.  I have never been very
+responsible about writing test code; a lot of code interacts with
+enough systems that it can require elaborate harnesses to exercise,
+and I could often convince myself (probably incorrectly) that it
+wasn’t worth the effort.  Pure functions are trivial to test; the
+tests look like something right out of a textbook, where you build
+some inputs and look at the output.  Whenever I come across a finicky
+looking bit of code now, I split it out into a separate pure function
+and write tests for it.  Frighteningly, I often find something wrong
+in these cases, which means I’m probably not casting a wide enough
+net.
+
+Understandability and maintainability.  The bounding of both input and
+output makes pure functions easier to re-learn when needed, and there
+are less places for undocumented requirements regarding external state
+to hide.
+
+Formal systems and automated reasoning about software will be
+increasingly important in the future.  Static code analysis is
+important today, and transforming your code into a more functional
+style aids analysis tools, or at least lets the faster local tools
+cover the same ground as the slower and more expensive global tools.
+We are a “Get ‘er done” sort of industry, and I do not see formal
+proofs of whole program “correctness” becoming a relevant goal, but
+being able to prove that certain classes of flaws are not present in
+certain parts of a codebase will still be very valuable.  We could use
+some more science and math in our process.
+
+Someone taking an introductory programming class might be scratching
+their head and thinking “aren’t all programs supposed to be written
+like this?”  The reality is that far more programs are Big Balls of
+Mud than not.  Traditional imperative programming languages give you
+escape hatches, and they get used all the time.  If you are just
+writing throwaway code, do whatever is most convenient, which often
+involves global state.  If you are writing code that may still be in
+use a year later, balance the convenience factor against the
+difficulties you will inevitably suffer later.  Most developers are
+not very good at predicting the future time integrated suffering their
+changes will result in.
+
+** Copying and sharing
+
+Consider a binary tree:
+
+#+begin_src 
+data Tree = Leaf
+          | Bin Tree Int Tree
+#+end_src
+
+#+begin_src dot :file tree-orig.svg :cmdline -Kdot -Tsvg
+digraph G {
+  10 -> 5 -> 2; 
+        5 -> 7;
+  10 -> 20 -> 12;
+        20 -> 22;
+}
+#+end_src
+
+And say we insert 13 in it using the function: 
+
+#+begin_src haskell
+insert x Leaf = Bin Leaf x Leaf
+insert x (Bin l y r) | x < y = Bin (insert x l) y r
+                     | ...
+#+end_src
+
+
+The new tree /shares/ most of its contents
+with the old one:
+
+FIXME: verify this diagram
+#+begin_src dot :file tree-orig.svg :cmdline -Kdot -Tsvg
+digraph G {
+  10 -> 5 -> 2; 
+        5 -> 7;
+  10 -> 20 -> 12;
+        20 -> 22;
+node [color=red];
+edge [color=red];
+
+new10 [label="10"];
+new20 [label="20"];
+new12 [label="12"];
+new13 [label="13"];
+
+new10 -> 5;
+new10 -> new20;
+new20 -> new12;
+new20 -> 22;
+new12 -> new13;
+  
+}
+#+end_src
+
+*** Question: which nodes will be considered as garbage during the next collection? 
+
+** Laziness
+*** Question: How much memory is used by map?
+Assuming
+
+- l : List Int
+- length l = n
+
+How much memory is consumed by:
+
+    : map (+1) l
+
+**** Same question, but assume that only the 1st element of the new list is used in the rest of the program
+
+**** Same question, but assume 'l' is no longer used in the rest of the program.
+
+⟶ Some say: "in Haskell, lists are a _control structure_".
+
+** Paradigm shift: composition of transformations
+
+- When writing a search function, the programmer can ALWAYS (and ONLY)
+  return a list of ALL possible results (instead of "the first one").
+- Programs can be understood as "stream processors"
+- Dogma: no side effect (eg. no global state)
+
+** Paradigm shift: generate and prune
+- Generate infinite/large data structure
+- Only visit relevant parts 
+- Examples: game tree, processes
+*** Trivia: what is the most used lazy language?
+- Probably SQL!
+- But remember also unix-shell pipes:
+  
+   cat /etc/password | grep 'group=admin' | head 
+
+*** Read: _Why functional programming matters_, J. Hughes.
+
+** Transformation: explicit thunks
+
+First, let us define a spine-strict list.  One can have strict
+structures in Haskell, by annotating constructors with an exclamation
+mark.  For [[file:Strict.hs][example]]:
+#+INCLUDE "Strict.hs" src haskell
+
+It's possible to recover laziness by introduction of /explicit thunks/:
+#+INCLUDE "Lazy.hs" src haskell
+
+*** Note: laziness as implemented in Haskell is more efficient than explicit thunks as presented above. Why?
+Because Haskell garantees that a given thunk is never evaluated more
+than once: after computation the thunk is overwritten by the
+value. (As opposed to re-evaluate it every time its value is neeed).
+If you need to evaluate thunks many times, it's a good idea to have
+explicit memoization.
+
+Subnote: this crucially relies on the absence of side-effects.
+
+*** Question: What if we want to encode laziness in an imperative language?
+- First introduce explicit thunks,
+- Then transform them into closures!
+
+** What if we have side effects+laziness?
+* Concurrent programming
+** Disclaimer: Concurrent programming ≠ Parallel programming
+Parallel programming = expose (lack of) dependencies between parts of
+the computation, so that the computer can run subtasks in parallel.
+
+Concurrent programming = spawn independent processes, which live
+independent lives (dependencies might come, but "after the fact").
+
+In summary:
+- parallelism: about /speed/.
+- concurrency: distribution, redundancy, etc.
+** Motivation: the world is concurrent
+#+begin_quote
+The world is concurrent
+
+Things in the world don't share data
+
+Things communicate with messages
+
+Things fail                                      ⟵ the part we will not discuss in this course
+#+end_quote
+  — Joe Armstrong 
+       (After his 7th victory in Tour de France)
+** Process
+A process is an independent thread of computation. In Haskell, we can
+create new processes using Control.Concurrent.forkIO.
+
+For [[file:Process.hs][example]]:
+#+INCLUDE "Process.hs" src haskell
+
+*** Exercise (⋆)
+- Run the above example
+- What is the output?
+** Shared state (aka Concurrent + Imperative)
+http://hackage.haskell.org/packages/archive/base/4.4.1.0/doc/html/Data-IORef.html
+
+- Data.IORef newIORef 
+
+Big danger of "screwing up":
+
+: x = 0
+: x = x + 1   //   x = x + 1
+: x ???
+
+- more realistic example: two insertions in a balanced tree
+- In general: access to a shared ressource must be controlled.
+
+- How not to screw up?
+  - Semaphores
+  - Locks
+  - Critical sections
+  - Synchronized classes
+  - ...
+
+- ... but these solutions come with problems of their own:
+  - deadlocks
+  - livelocks
+  - priority inversion
+  - ...
+
+** Channels
+A channel is a medium for communication between processes. In Haskell,
+channels can be created with the newChan function. (Note that the
+channel is polymorphic, you may need to force the type to that you
+need.)  For [[file:Channel.hs][example]], in the following snippet, two processes
+communicate via a channel (c).
+#+INCLUDE "Channel.hs" src haskell
+
+*** Exercise:
+Execute each line of the main function in ghci, and try to guess what
+will happen.
+
+** Idea (Concurrent + Functional)
+One approach not to screw up:
+- NO shared state!
+- communication only happens via messages over channels.
+- In general: a shared ressource is managed by a single process
+- Approach of CSP, π-calculus, Erlang
+- The approach we'll describe here... using "Concurrent Haskell"
+
+** Transformation: variable-managing process
+
+Reading/Writing to a channel is a harmless kind of side effect... Or is it?
++ Yes!
+  - Nothing is "overwritten" (see x=x+1 // x=x+1 example above)
+  - in particular the integrity of data structures in never
+    compromised.
++ No!
+  - Referential transparency is broken
+  - reading from a channel is not a proper function
+
+In fact, one can simulate an updatable variable using channels and
+processes. 
+
+See
+file:SimpleVariableManager.hs
+for a simple example.
+
+Or this one for an "serious" version.
+file:CSPVariable.hs
+#+INCLUDE "CSPVariable.hs" src haskell
+
+*** Exercises
+- Use newVariable, set and get in the ghci prompt.
+- How many processes are running?
+- Transform the handler function to do a sum instead of overwriting
+  when 'set' is called.
+- Can you change the program so that the get command does not need to
+  create a channel? (⋆⋆)
+
+** Some erlang peculiarities
+- Syntax (inspired by prolog!?)
+- Dynamic typing
+- Hot-code swapping
+- Things can fail!
+  - processes crash (sometimes)
+  - messages may or may not arrive (usually they do).
+- Functional (like Haskell)
+  - but strict.
+- Processes have a single "mailbox" instead of multiple channels
+** Exercise: remote procedure call.
+
+server: accepts arguments to the function + channel where to post the reply.
+gotcha: laziness!
+
+** Transformation: explicit continuations
+
+Possible meaning for Concurrent Programming: processes are executed in
+an interleaved fashion. A process can be "put on hold" at some point,
+and control is given to some other process. To understand this, we
+must first capture the notion of a "running process"
+precisely. Namely, when a process is stopped, we need to have an
+object that represents /how to continue/ when control is returned to
+it.
+
+*** What is a continuation?
+A continuation is simply the part of the program /execution/ that will
+take place after some given point.
+*** Example
+Let us write a trivial server:
+#+INCLUDE "Server.hs" src haskell
+Same with explicit continuations:
+#+INCLUDE "ServerWithContinuations.hs" src haskell
+
+*** Exercise
+- How many processes are created in the 1st version of the server?
+- How many are created in the transformed version?
+- What are the tradeoffs of the transformation?
+- (⋆⋆⋆) make continuations explicit closures
+- (⋆⋆⋆) Could you write the above server in C? How would you go about
+  it?
+** Closing
+There are more models for concurrency than chanels + processes
+(eg. revisions)
+
+* Logic programming
+** Logic: a crash course (✪)
+*** Question: what is *a logic*?
+
+  (Sound) rules of reasoning
+
+*** Notion: Proposition:
+- A statement (can be true or false).
+
+(A proposition that can be proved is called a theorem.)
+
+**** Closed propositions:
+- "Socrates is a man"
+- "John Hughes has a tatto on the sole of his left foot"
+- 123 + 345 == 567
+- reverse [] == []
+- p(1235) terminates
+**** Open propositions:
+- "/X/ is a man"
+- "John Hughes has a tatto on /X/"
+- (sin /X/)² + (cos /X/)² == 1
+- reverse (/X/ ++ /Y/) == reverse /Y/ ++ reverse /X/
+- p(/X/) terminates
+
+(The above statements _may_ be made true for some value of the (meta-)variables /X/, /Y/)
+
+*** Notion: Rules
+(An axiom is just a rule without premiss)
+**** Example: conjunction
+
+#+begin_example
+   A        B                   <--- premisses
+----------------
+      A ∧ B                     <--- conclusion
+
+
+
+     A ∧ B
+----------------
+       A
+
+     A ∧ B
+----------------
+       B
+#+end_example
+
+**** Example: specialisation
+#+begin_example
+      ∀x. A(x) ⇒ B(x)          A(a)
+----------------------------------------
+           B(a)
+#+end_example
+
+Famously:
+#+begin_example
+   ∀x. Man(x) ⇒ Mortal(x)          Man(socrates)
+ ------------------------------------------------
+                   Mortal(socrates)
+#+end_example
+
+**** Example(⋆⋆⋆⋆): application
+#+begin_example
+   ∀x:A ⇒ B(x)          a:A
+----------------------------
+           B(a)
+#+end_example
+
+
+Famously:
+#+begin_example
+   ∀x:Man ⇒ Mortal(x)          socrates : Man
+ ------------------------------------------------
+                   Mortal(socrates)
+#+end_example
+
+Note the similarity with function application!
+
+*** Proof
+
+derive a theorem from a number of axioms, using the rules:
+
+#+begin_example
+   axiom1   axiom4                              axiom2
+ --------------------- principle           -------------- principle ...
+   quux                                         foo
+  ----------------------------------------------------------- principle ....
+                        bar
+#+end_example
+
+** Syntax
+In this lecture I use the [[http://en.wikipedia.org/wiki/Curry_(programming_language)][Curry]] syntax. 
+(Similar to Haskell, plus a couple extra features)
+*** Read (as needed)
+   [[http://www-ps.informatik.uni-kiel.de/currywiki/documentation/tutorial][the Curry tutorial]]
+*** Interpreter
+- Install PAKCS (recommended)
+  + MacOS (tested on Lion) install instructions:
+    - Install Haskell platform
+    - For some reason the Haskell platform seems confused with the
+      location of gcc. Fix it:
+       : sudo ln -s /usr/bin/gcc /Developer/usr/bin/
+    - Install swi-prolog *5.10*
+      http://www.swi-prolog.org/download/stable
+      ATTENTION: Pakcs does not work with swi-prolog 6.0!
+    - download pakcs sources and unzip
+    - build
+       : ./configure-pakcs
+       : make
+    - interpreter is bin/pakcs
+  + Linux (tested on Ubuntu Oneiric):
+    - Install swi-prolog *5.x*
+      : sudo aptitude install swi-prolog
+    - download packs Linux binary http://www.informatik.uni-kiel.de/~pakcs/download/pakcs_Linux.tar.gz
+    - untar
+    - make     
+  + Run the interpreter and load file:   
+     :  .../pakcs/bin/pakcs
+     :  :l Family.curry  
+- ... or just use web interface: http://www-ps.informatik.uni-kiel.de/~mh/pakcs/curryinput_c2p.cgi
+*** TODO Also look into KiCS2 http://www-ps.informatik.uni-kiel.de/kics2/
+** Unification
+
+We introduce two new concepts at once:
+- Metavariable
+- Unification
+
+In Curry, we can declare a metavariable /x/ using the "where /x/ free"
+construct.
+#+begin_example
+f = ... x ... x ....
+    where x free
+#+end_example
+
+Two (arbitrary) values can be unified using the =:= operator.  On
+regular values, =:= behaves as == (equality test). However, if one
+side is a metavariable, it /binds/ it.
+
+For example, after 
+#+begin_example
+  x  =:=  'a'
+#+end_example
+x is /bound/ to 'a'.
+
+Unification is even more general than that: unification can bind
+multiple variables at once. For example, assume the following data type
+: data Tree = Leaf Int | Bin Tree Tree
+
+and the (unbound) metavariables x and y. Then, after
+: Bin (Leaf x) y =:= Bin (Leaf 1) (Bin (Leaf 2) (Leaf 3))
+
+we have
+: x = 1
+: y = Bin (Leaf 2) (Leaf 3)
+
+Finally, metavariables can be bound to each other (we say that they
+are aliased). That is, if we have
+: x =:= y 
+
+and later
+: y  =:=  2
+
+then
+: x = 2
+
+Note that aliassing is symmetric.
+
+
+- Terminology: 
+  - When a term contains no metavariable, it is sometimes called "a ground
+    term".
+
+Note that, in Curry, regular arithmetic works only on ground terms.
+: x + 2
+:   where x free 
+fails
+
+*** Trivia (⋆): what are the bindings after...
+
+ 1) 
+    : 2 =:= x
+ 2) 
+    : [x,1] =:= [2,y]
+ 3) 
+    : [x,y,z] =:= [w,x,y] 
+
+*** Unification failures
+**** Different structures
+
+The query 
+: [] =:= [x] where x free
+fails because lists on the left and right have rigid, different
+shapes.
+
+**** Occurs check
+
+The query
+: x =:= (1 : x) where x free
+fails, because x cannot be unified with something where occurs.
+
+(✪) Could it make sense to succeed though?
+
+*** A specification of unification 
+- A variable which is uninstantiated—i.e. no previous unifications
+  were performed on it—can be unified with an atom, a term, or another
+  uninstantiated variable, thus effectively becoming its alias. A
+  variable cannot be unified with a term that contains it; this is the
+  so called occurs check.
+- Two atoms can only be unified if they are identical.
+- Similarly, a term can be unified with another term if the top
+  function symbols and arities of the terms are identical and if the
+  parameters can be unified simultaneously. Note that this is a
+  recursive behavior.
+*** Exercise (⋆⋆⋆)
+Write an algorithm implementing the above specification.
+*** Implementing unification in an imperative language (a sketch)
+
+Have indirection for meta-variables occurences; indirection for meta
+(meta = unbound / ground / meta).  After unifying, overwrite the
+meta-variable with its value
+
+**** Question
+how do we reconciliate referencial transparency with the need to
+"update" the bindings of meta-variables?
+
+*** (✪) Reading
+Wikipedia has a [[http://en.wikipedia.org/wiki/Unification_(computer_science)][good article]] on unification.
+** Transformation: Functions to relations
+From "classic" math: a function is a graph:
+
+:  f : A → B
+
+means
+
+:  f : A × B
+:  (x,y₁) ∈ f and (x,y₂) ∈ f   ⇒ y₁ = y₂
+
+
+We can turn this around and encode functions as their graphs.
+
+| source              | target                                                        |
+|---------------------+---------------------------------------------------------------|
+| f : A → B           | f : A → B → Success                                           |
+| definition: f x = y | assert: f x y = success                                       |
+| expression: f(x)    | expression: y (new free variable),  with the condition f x y  |
+
+In the following [[file:Lists.curry][example]], we see transform the List functions append
+and reverse to relations.
+#+INCLUDE "Lists.curry" src curry
+
+** Paradigm shift:
+- No longer necessary to restrict oneself to relations that describe
+  functions.
+- Dogma: no more functions, only relations
+  + Y = f(X) is replaced by f(X,Y)
+  + if X and Y are known, f(X,Y) is a testable proposition
+- Provide a number of facts (axioms/rules)
+- Let the computer search for an assignment of variables that make
+  some statement true (proof)
+- Invertible programs
+  + if X known, Y is computed (f(X))
+  + if Y known, X is computed (f-1(Y))  
+  + Compute both directions with one piece of code
+  + Very cool!!!! (parser/pretty-printer, compiler/decompiler...)
+- Sadly, often inefficient
+  + Performance of functions inverted using the above receipe can be
+    terrible.
+  + As far as I know, there does not exist a "sufficiently smart
+    compiler" for logic programming yet.
+  + restricted to very specific domains
+
+** Other example: family tree
+#+INCLUDE "Family.curry" src curry
+file:Family.curry
+There are sometimes more than one way to satisfy a relation!
+*** Backtracking
+
+If at some point one encounters a failure (for example unification
+fails), *backtrack* to the last disjunction and try the other branch.
+
+This requires that you remember the "state of the world" at each
+disjuction point.
+
+Example: solve the query:
+
+:   append xs ys "hello"  
+:        where xs,ys free
+
+(Branching point A)
+1st case. Maybe the equation
+
+:  append [] ys zs = ys =:= zs 
+
+applies? Using it to rewrite the goal gives:
+
+:   ys =:= "hello"
+:        where ys free
+:              xs = []
+
+Solving the unification constraint yields:
+
+:   success
+:        where ys = "hello"
+:              xs = []
+
+And this is our 1st solution. Now, we can /backtrack/ to the branching
+point A, and try the 2nd equation (I have renamed variables to avoid clashes):
+
+:   append (x:xs') ys zs = append xs' ys zs' &
+:                      zs =:= x:zs'
+:      where zs' free
+
+
+Which rewrites our goal to 
+
+:                      append xs' ys zs' &
+:                      "hello" =:= x:zs'
+:      where zs' free
+:            xs = x:xs'
+:            ys free    
+:            x  free
+:            xs' free 
+
+Solving the 2nd unification constraint yields:
+
+:                      append xs' ys "ello"
+:      where xs = 'h':xs'
+:            ys free     
+:            x = 'h'
+:            xs' free 
+
+
+Again there are 2 ways to solve the remaining goal. (So we have
+another branching point B here.)
+
+Proceeding with the 1st equation for append yields (similary as
+before)
+
+:  xs' = []
+:  ys = "ello"
+
+and thus the final solution:
+
+: xs = "h"
+: ys = "ello"
+
+At this point one can backtrack to the point B, and continue with the
+2nd equation for append, etc.
+
+*** List of successes
+
+Explicit representation of disjunction. That is, suppose we want to
+encode the (inverse) of the Parent relation from file:Family.curry as
+a function children, such as:
+
+: parent x y ⇔ y ∈ children x
+
+#+begin_src haskell
+children :: Person -> [Person]
+children Gustaf = [Victoria,Philippe,Madeleine]
+children Adolf  = ...
+#+end_src
+
+exercise: write the function "parents", such as 
+
+: parent x y ⇔ x ∈ parents y
+
+We can now translate sibling function as follows:
+
+: siblings x  :: Person -> [Person]
+: siblings x = map children
+
+this pattern is so common that there is special syntax for it: list
+comprehension.
+
+: siblings x = [ y | z <- parents x,  y <- children z]
+
+Each free variable must range over its possible values.
+
+**** Translate unification
+We do not cover this.
+
+*** Note: there are clever ways to implement logic programming.
+We won't discuss those here; there is lots of literature for the
+interested.
+
+* Outlook
+
+The following graph is an overview of all the transformations seen in
+the course.
+
+(NOTE: You should know also how to "revert" a transformation!)
+
+#+begin_src dot :file transformations.svg :cmdline -Kdot -Tsvg
+digraph G {
+   Imperative -> Machine [label="explicit gotos"]
+   Imperative -> Machine [label="explicit stack\n(derecursification)"]
+   "Object-Oriented" -> Imperative [label="explicit method pointers"]
+   Functional -> Imperative [label="explicit closures\n(defunctionalization)"]
+   Functional -> Imperative [label="inline higher-order fct."]
+   Imperative -> Functional [label="explicit state"]
+   Functional -> Functional [label="explicit thunks"]
+   Imperative -> Concurrent [label="state-managing process"]
+   Concurrent -> Functional [label="explicit continuations"]   
+   Functional -> Logic [label="explicit result\n(embedding functions into relations)"]
+   Logic -> Functional [label="explicit list of successes"]
+}
+#+end_src
+
+#+results:
+[[file:transformations.svg]]
+
+* Postlude: Where to go from here?
+** Exam :)
+- re-do the exercises
+- exam will be in the same style
+** More features we did not discuss:
+- Exceptions
+- Constraints
+- ...
+** Explore the paradigms you like!
+You can take courses dedicated to specific paradigms
+- Functional ((advanced) functional programming)
+- Concurrent (concurrent programming TDA381)
+- Object oriented
+- Logic (partly covered in Formal Methods)
+
+** Invent your own paradigm!
+- ... that suits the way you think
+- ... that suits your favourite application domain
+- Partly covered in the AFP Course
+** Translations "in the large"
+Courses:
+- Programming Languages
+- Compiler construction Course
+** Formal study of Syntax, Types, and Semantics
+   + Programming Languages Course
+   + "Types and Programming Languages", Pierce
+   + Types For Proofs And Programs Course
+** A lot more to read
+- The essence of functional programming (Wadler) — Actually a tutorial on monads.
+- Poor man's concurrency monad (Claessen)
+- The essence of list comprehensions (Wadler)
+- Andre Pang's thesis
+- Introduction to programming with shift and reset http://okmij.org/ftp/continuations/index.html#tutorial1
+- Transforming failure into a list of successes (Wadler)
+- Typed logical variables in Haskell
