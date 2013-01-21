@@ -6,7 +6,7 @@
 This document is generated form an org-mode file. 
    - To access it replace .html by .org in the above link
    - It can be read in plain text: header level is indicated by number of *
-   - Or more conveniently by using emacs [[http://orgmode.org/][org mode]]. 
+   - Or more conveniently by using Emacs [[http://orgmode.org/][org mode]]. 
      + Use <TAB> to expand/collapse nodes. 
      + C-c C-e b to do HTML rendering and open in your browser
      + Check out the [[http://orgmode.org/orgcard.txt][reference card]].
@@ -21,13 +21,13 @@ broadly: a philosophical or theoretical framework of any kind"
 - http://www.merriam-webster.com/dictionary/paradigm
 - http://en.wikipedia.org/wiki/Programming_paradigm
 
-** Paradigms as "ways of organising thought"
+** Paradigms as "ways of organizing thought"
 
 :             Programming paradigm 
 :                        = 
-: The basic structuration of thought underlying the programming activity
+: The basic structuring of thought underlying the programming activity
 
-eg. when you think of a programming problem, what are you thinking of?
+e.g.. when you think of a programming problem, what are you thinking of?
 
 - the sequence of actions to perform (first download the file, then
   display it)
@@ -103,9 +103,9 @@ How do you think of your computer?
 file:LangPop.png
 
 - In the old days: languages were built around a central idea,
-  crystallised in a paradigm.
+  crystallized in a paradigm.
 - Explosion in the number of languages
-- Now, there is a lot of cross-fertilisation between
+- Now, there is a lot of cross-fertilization between
   languages: real-world languages implement apparently random collections
   of features.
 - A given paradigm needs a specific set of features to be supported.
@@ -141,7 +141,7 @@ Patterns", the seminal book) or formally within the language
 (cf. Haskell Monads). 
 
 Eventually, all programming may revolve around a number of patterns;
-the old ways are abandonned.  This is the paradigm shift: a new way of
+the old ways are abandoned.  This is the paradigm shift: a new way of
 thinking appears. Eventually, a new programming language may be
 developed to support the "patterns" directly.
 
@@ -163,10 +163,10 @@ The colon is used ':' to denote the typing relation:
 - 0.5 : Float
 - (1/2) : Rational
 
-*** Feature: Paramerisation and function types
+*** Feature: Parametrization and function types
 
 This is a good time to see our first programming language feature. It
-is so ubiquitious (nearly every language has it -- can you think of a
+is so ubiquitous (nearly every language has it -- can you think of a
 counter-example?) that you may not have thought of it as a "feature"
 at all so far. We are talking about the ability to /abstract/ over
 parameters.
@@ -213,20 +213,20 @@ is useless --- so they really are two sides of the same coin.
 1. factorial : ?  
 2. π : ?  
 3. sin : ?
-4. × : ?   (multiplicaton)
+4. × : ?   (multiplication)
 5. derivative : ? (or ∫ : ?) (review this question after FP paradigm...)
    - hint: remember that derivative maps sin to cos.
-*** TODO Feature: naming things
+*** Feature: naming things
 
 Naming things is a *special case* of abstraction. (Abstraction is a
-generalisation of naming things).
+generalization of naming things).
 
 Example:
 
 : circle_area(r) = 3.14 * r * r
 : circle_perimeter(r) = 2 * 3.14 * r
 
-We can abstact over pi
+We can abstract over pi
 
 : module Some_Code(pi : Float)
 :   circle_area(r) = pi * r * r
@@ -242,12 +242,12 @@ This pattern of abstraction/application is so common that most
 Benjamin Pierce's "Good Language" test: Can you abstract over
 everything you can name?
 
-*** Feature: Higher-order parametrisation
+*** Feature: Higher-order parametrization
 "What can be named/abstracted on" is an important characteristic of
 programming languages. Consider you favorite programming
 language. Does it support abstraction over:
 - integers?
-- charaters?
+- characters?
 - strings?
 - arrays?
 - matrices?
@@ -257,31 +257,36 @@ language. Does it support abstraction over:
 - modules?
 - ...
 
-Higher-order functions refer to functions which are parameterised by
+Higher-order functions refer to functions which are parametrized by
 other functions.  Typically in mathematics abstraction is
 unrestricted. Consider for example the types of derivative and
 integrals!
 
-*** TODO Every problem can be solved by adding a level of indirection
+*** Every problem can be solved by adding a level of indirection
+
+"All problems in computer science can be solved by another level of indirection" --- Butler Lampson
+
+My version: every problem can be solved by adding a level of abstraction.
+
 * Imperative programming
 ** Paradigm
 
 1. do this
 2. then do that
-3. then do some otherthing 
+3. then do some other thing 
 4. if not done, then repeat 2. and 3. 
 
 (cf. cookbook... for beginner cooks :)
 
 *** Computing model
-"von neumann" model of the computer:
+"von Neumann" model of the computer:
 
 - Memory cells
 - Program (assignments, arithmetic, logic, (conditional) jumps)
 
 ** Example
-*** Feature: goto
-A pretty basic feature of imperative language is the jump ("goto");
+*** Feature: GOTO
+A pretty basic feature of imperative language is the jump ("GOTO");
 which may be conditional. Try to figure out what the following code
 does.
 #+begin_example
@@ -304,7 +309,7 @@ does.
 It has been noted that programs written using only gotos are pretty
 hard to understand.  If one programs using gotos, it is advisable to
 restrict oneself to a few easy patterns (loops; or conditional
-execution). Nowadays gotos have almost disappeard from usage and all
+execution). Nowadays gotos have almost disappeared from usage and all
 code is written using special-purpose instructions for the above
 patterns. This is an instance of paradigm shift.
 
@@ -325,9 +330,9 @@ the above?
 #+end_example
 
 *** Feature: procedures
-The above code is parametric over ~A~. If the language supports this
-abstraction we should take advantage of it and present the above as a
-procedure.
+The above code is parametric over the array ~A~. If the language
+supports this abstraction we should take advantage of it and present
+the above as a procedure.
 #+begin_example
     procedure bubbleSort( A : array of comparable items )
       swapped = true
@@ -363,7 +368,7 @@ while i > 0 do
 
 *** Target
 It can be encoded into the following code, which uses only
-(conditinal) jumps:
+(conditional) jumps:
 #+begin_example
 test:
   p := not (i>0)
@@ -391,7 +396,7 @@ In fact the above transformation is parametric on the
 condition and body of the loop. Hence we may just abstract over these
 parts. We will present the next transformation in this format.
 *** Source
-Assuming a boolean-valued expression ~cond~ and two blocks of code
+Assuming a Boolean-valued expression ~cond~ and two blocks of code
 ~part1~ and ~part2~, and the following pattern:
 #+begin_example
 if cond then
@@ -442,9 +447,9 @@ only. (You may use if statements)
 The reverse transformation (from jumps to structured constructions) is
 not so easy. That is, there is no general formula that gives you
 "beautiful" code from "spaghetti" code. To do so you must be creative!
-A good idea is to try to recognise the patterns generated above and
+A good idea is to try to recognize the patterns generated above and
 reconstruct the source from them.
-** Feature: parameter passing by reference 
+** Feature: parameter passing by reference
 *** Example
 Passing by reference means that the programmer can name /blocks of
 code/.
@@ -734,7 +739,7 @@ normal "goto caller" return statement if we had not overwritten the
 caller with continue.
 
 
-Hence, the stack can be removed altogether! This is called /tail-call optimisation/. Why?
+Hence, the stack can be removed altogether! This is called /tail-call elimination/. Why?
 
 
 We get:
@@ -913,7 +918,7 @@ Test(cast<Animal> createCat); -- (2)
 **** Question: why are the casts (2) valid?
 The layout of the parent class is exactly the same as that of the subclass.
 **** Question: what if the Dog class had an extra method/field?
-(In general, there can be more fields/methods in the subclass, found _after_ the fields of th e top class)
+(In general, there can be more fields/methods in the subclass, found _after_ the fields of the top class)
 **** Liskov substitution principle and Polymorphism
 
 if class B inherits class A, then, for any x,
@@ -996,7 +1001,7 @@ dogMethods = {Pet := petDog, ...}
 
   - Multiple "cases" can be implemented by inheriting a common class
   - Dogma: no "if".
-  - Specific behaviour is implemented in derived methods
+  - Specific behavior is implemented in derived methods
   
   - Open question: multiple dispatch!
 
@@ -1116,8 +1121,8 @@ Translation of interfaces via method tables.
 
 ** Forward reference: ``objects are poor man's [[closures]]''
  Note the similarity between objects and closures: they are both
- encoded as state/environment + fct. pointer.
-** TODO Traits & Objects as fixpoints (✪)
+ encoded as state/environment + function. pointer.
+** TODO Traits & Objects as fix-points (✪)
 * Functional programming
 ** Reading (as necessary to understand Haskell syntax): "Learn you a Haskell, for great good!"
 http://learnyouahaskell.com/
@@ -1265,9 +1270,9 @@ the List interface.
 
 - In an OO language such as Java, it is convenient to add new cases to
   sum types, but it is cumbersome to add a new algorithm. (In the
-  above example, 'fold' is scatered among 3 classes/interfaces)
+  above example, 'fold' is scattered among 3 classes/interfaces)
 - In a language such as Haskell, it is convenient to add a new
-  algorithm (the fold function is localised at a single place), but
+  algorithm (the fold function is localized at a single place), but
   cumbersome to add a case in a sum type (why?).
 
 ** Higher-order functions
@@ -1286,7 +1291,7 @@ product Nil         = 1
 product (Cons x xs) = x * product xs
 #+end_src
 
-*Same pattern ⟶ Abstract out the difference ! (Parameterize)*
+*Same pattern ⟶ Abstract out the difference ! (Parametrize)*
 
 Exercise: fill in the question mark in the following snippet
 #+begin_src haskell
@@ -1329,7 +1334,7 @@ map works on lists of /anything/, as long as the type of function that
 we pass to map (1st argument) matches. This is captured formally in
 the type of map.
 
-Effectively, map has mutliple types. Because the type is parameterized
+Effectively, map has mutliple types. Because the type is parametrized
 over any types (a,b), this is called /parametric polymorphism/.
 
 *** Reading: 
@@ -1374,7 +1379,7 @@ multiply n xs = map (\x -> x * n) xs
 #+end_src
 
 Substitute the formal parameter 'f' by its argument '(\x -> x * n)' in
-the code of 'map' (this is called β-recuction):
+the code of 'map' (this is called β-reduction):
 
 #+begin_src haskell
 multiply n xs = case xs of
@@ -1480,7 +1485,7 @@ Note the similarity with the implementation of [[objects]]!
 **** Exercise: Implement the above example Java
 Hints
  - Instead of a tag, make a derived class ('apply' is a method)
- - Or just apply the Alg. Data Type ==> Classes transformation seen above.
+ - Or just apply the Algebraic Data Type ==> Classes transformation seen above.
 
 #+begin_src pseudo-Java
 List map(Closure c, List xs) {
@@ -1513,7 +1518,7 @@ map(new Add4(), xs)
 map(new MultipyBy(n), xs)
 #+end_src
 
-See the similiarity with Observer/EventListener pattern in Java:
+See the similarity with Observer/EventListener pattern in Java:
 
 #+begin_src 
 interface Listener -- "Closure"
@@ -1644,7 +1649,7 @@ Higher-Order and Typed
   + One does not get lost in keeping track of details (so easily)
   + Can use function types to represent objects that were before complex data structures.
     - example: A set can be represented by its characteristic function
-    - There are tradeoffs (performance!)
+    - There are trade-offs (performance!)
 - Further reading (⋆) 
    + Haskell vs. Ada vs. C++ vs. Awk vs. ... ─ An Experiment in Software Prototyping Productivity
    + especially, sec. 6.1, 7, 8
@@ -1656,7 +1661,7 @@ Did you know that side effects...
  - are a common source of bugs?
  - make testing difficult?
  - make reasoning difficult?
- - make parallelizing diffcult?
+ - make parallelizing difficult?
  - cause cancer?
 
 *** Referential transparency
@@ -1666,12 +1671,12 @@ Did you know that side effects...
 | Mathematical function  | sin     |
 | Function in (say) Java | getChar |
 
-The behaviour of sin depends only on its arguments; whereas the
-behaviour of getChar depends on an (implicit) environment.
+The behavior of sin depends only on its arguments; whereas the
+behavior of getChar depends on an (implicit) environment.
 
 In other words, all the dependencies of a function are /explicit/.
 
-**** Attention: constrast with the Haskell function getChar
+**** Attention: contrast with the Haskell function getChar
 
 : getChar :: IO Char
 
@@ -1699,7 +1704,7 @@ In general:
 - no guesswork to know what a function depends on
 - can (relatively) easily explore the input space of the function
 
-*** More optimisations possible (which ones?)
+*** More optimizations possible (which ones?)
 - CSE (gotchas)
 - Fusion
 - ...
@@ -1939,9 +1944,9 @@ It's possible to recover laziness by introduction of /explicit thunks/:
 #+INCLUDE "Lazy.hs" src haskell
 
 *** Note: laziness as implemented in Haskell is more efficient than explicit thunks as presented above. Why?
-Because Haskell garantees that a given thunk is never evaluated more
+Because Haskell guarantees that a given thunk is never evaluated more
 than once: after computation the thunk is overwritten by the
-value. (As opposed to re-evaluate it every time its value is neeed).
+value. (As opposed to re-evaluate it every time its value is needed).
 If you need to evaluate thunks many times, it's a good idea to have
 explicit memoization.
 
@@ -1997,7 +2002,7 @@ Big danger of "screwing up":
 : x ???
 
 - more realistic example: two insertions in a balanced tree
-- In general: access to a shared ressource must be controlled.
+- In general: access to a shared resource must be controlled.
 
 - How not to screw up?
   - Semaphores
@@ -2008,7 +2013,7 @@ Big danger of "screwing up":
 
 - ... but these solutions come with problems of their own:
   - deadlocks
-  - livelocks
+  - live-locks
   - priority inversion
   - ...
 
@@ -2028,7 +2033,7 @@ will happen.
 One approach not to screw up:
 - NO shared state!
 - communication only happens via messages over channels.
-- In general: a shared ressource is managed by a single process
+- In general: a shared resource is managed by a single process
 - Approach of CSP, π-calculus, Erlang
 - The approach we'll describe here... using "Concurrent Haskell"
 
@@ -2099,12 +2104,12 @@ Same with explicit continuations:
 *** Exercise
 - How many processes are created in the 1st version of the server?
 - How many are created in the transformed version?
-- What are the tradeoffs of the transformation?
+- What are the trade-offs of the transformation?
 - (⋆⋆⋆) make continuations explicit closures
 - (⋆⋆⋆) Could you write the above server in C? How would you go about
   it?
 ** Closing
-There are more models for concurrency than chanels + processes
+There are more models for concurrency than channels + processes
 (eg. revisions)
 
 * Logic programming
@@ -2120,13 +2125,13 @@ There are more models for concurrency than chanels + processes
 
 **** Closed propositions:
 - "Socrates is a man"
-- "John Hughes has a tatto on the sole of his left foot"
+- "John Hughes has a tattoo on the sole of his left foot"
 - 123 + 345 == 567
 - reverse [] == []
 - p(1235) terminates
 **** Open propositions:
 - "/X/ is a man"
-- "John Hughes has a tatto on /X/"
+- "John Hughes has a tattoo on /X/"
 - (sin /X/)² + (cos /X/)² == 1
 - reverse (/X/ ++ /Y/) == reverse /Y/ ++ reverse /X/
 - p(/X/) terminates
@@ -2134,11 +2139,11 @@ There are more models for concurrency than chanels + processes
 (The above statements _may_ be made true for some value of the (meta-)variables /X/, /Y/)
 
 *** Notion: Rules
-(An axiom is just a rule without premiss)
+(An axiom is just a rule without premise)
 **** Example: conjunction
 
 #+begin_example
-   A        B                   <--- premisses
+   A        B                   <--- premises
 ----------------
       A ∧ B                     <--- conclusion
 
@@ -2153,7 +2158,7 @@ There are more models for concurrency than chanels + processes
        B
 #+end_example
 
-**** Example: specialisation
+**** Example: specialization
 #+begin_example
       ∀x. A(x) ⇒ B(x)          A(a)
 ----------------------------------------
@@ -2162,9 +2167,9 @@ There are more models for concurrency than chanels + processes
 
 Famously:
 #+begin_example
-   ∀x. Man(x) ⇒ Mortal(x)          Man(socrates)
+   ∀x. Man(x) ⇒ Mortal(x)          Man(Socrates)
  ------------------------------------------------
-                   Mortal(socrates)
+                   Mortal(Socrates)
 #+end_example
 
 **** Example(⋆⋆⋆⋆): application
@@ -2177,9 +2182,9 @@ Famously:
 
 Famously:
 #+begin_example
-   ∀x:Man ⇒ Mortal(x)          socrates : Man
+   ∀x:Man ⇒ Mortal(x)          Socrates : Man
  ------------------------------------------------
-                   Mortal(socrates)
+                   Mortal(Socrates)
 #+end_example
 
 Note the similarity with function application!
@@ -2230,10 +2235,10 @@ In this lecture I use the [[http://en.wikipedia.org/wiki/Curry_(programming_lang
 ** Unification
 
 We introduce two new concepts at once:
-- Metavariable
+- Meta-variable
 - Unification
 
-In Curry, we can declare a metavariable /x/ using the "where /x/ free"
+In Curry, we can declare a meta-variable /x/ using the "where /x/ free"
 construct.
 #+begin_example
 f = ... x ... x ....
@@ -2242,7 +2247,7 @@ f = ... x ... x ....
 
 Two (arbitrary) values can be unified using the =:= operator.  On
 regular values, =:= behaves as == (equality test). However, if one
-side is a metavariable, it /binds/ it.
+side is a meta-variable, it /binds/ it.
 
 For example, after 
 #+begin_example
@@ -2254,14 +2259,14 @@ Unification is even more general than that: unification can bind
 multiple variables at once. For example, assume the following data type
 : data Tree = Leaf Int | Bin Tree Tree
 
-and the (unbound) metavariables x and y. Then, after
+and the (unbound) meta-variables x and y. Then, after
 : Bin (Leaf x) y =:= Bin (Leaf 1) (Bin (Leaf 2) (Leaf 3))
 
 we have
 : x = 1
 : y = Bin (Leaf 2) (Leaf 3)
 
-Finally, metavariables can be bound to each other (we say that they
+Finally, meta-variables can be bound to each other (we say that they
 are aliased). That is, if we have
 : x =:= y 
 
@@ -2271,11 +2276,11 @@ and later
 then
 : x = 2
 
-Note that aliassing is symmetric.
+Note that aliasing is symmetric.
 
 
 - Terminology: 
-  - When a term contains no metavariable, it is sometimes called "a ground
+  - When a term contains no meta-variable, it is sometimes called "a ground
     term".
 
 Note that, in Curry, regular arithmetic works only on ground terms.
@@ -2323,12 +2328,12 @@ fails, because x cannot be unified with something where occurs.
 Write an algorithm implementing the above specification.
 *** Implementing unification in an imperative language (a sketch)
 
-Have indirection for meta-variables occurences; indirection for meta
+Have indirection for meta-variables occurrences; indirection for meta
 (meta = unbound / ground / meta).  After unifying, overwrite the
 meta-variable with its value
 
 **** Question
-how do we reconciliate referencial transparency with the need to
+how do we reconciliate referential transparency with the need to
 "update" the bindings of meta-variables?
 
 *** (✪) Reading
@@ -2371,7 +2376,7 @@ and reverse to relations.
   + Compute both directions with one piece of code
   + Very cool!!!! (parser/pretty-printer, compiler/decompiler...)
 - Sadly, often inefficient
-  + Performance of functions inverted using the above receipe can be
+  + Performance of functions inverted using the above recipe can be
     terrible.
   + As far as I know, there does not exist a "sufficiently smart
     compiler" for logic programming yet.
@@ -2387,7 +2392,7 @@ If at some point one encounters a failure (for example unification
 fails), *backtrack* to the last disjunction and try the other branch.
 
 This requires that you remember the "state of the world" at each
-disjuction point.
+disjunction point.
 
 Example: solve the query:
 
@@ -2441,7 +2446,7 @@ Solving the 2nd unification constraint yields:
 Again there are 2 ways to solve the remaining goal. (So we have
 another branching point B here.)
 
-Proceeding with the 1st equation for append yields (similary as
+Proceeding with the 1st equation for append yields (similarly as
 before)
 
 :  xs' = []
@@ -2535,7 +2540,7 @@ You can take courses dedicated to specific paradigms
 
 ** Invent your own paradigm!
 - ... that suits the way you think
-- ... that suits your favourite application domain
+- ... that suits your favorite application domain
 - Partly covered in the AFP Course
 ** Translations "in the large"
 Courses:
@@ -2553,3 +2558,27 @@ Courses:
 - Introduction to programming with shift and reset http://okmij.org/ftp/continuations/index.html#tutorial1
 - Transforming failure into a list of successes (Wadler)
 - Typed logical variables in Haskell
+
+LocalWords:  stylesheet css href html renderer Neumann shaper Perlis
+LocalWords:  Clojure de Erlang's multithreading GOTO Hoare's izable
+LocalWords:  shapers Prolog Prolog's Monads someValue ItsType greetMe
+LocalWords:  FP Lampson goto gotos bubbleSort tmp addressOf PointerTo
+LocalWords:  variableAt inlining ok sqrt sqrtArgument sqrtResult rhs
+LocalWords:  sqrtCaller acc foreach GC OOP Firefox ShiftByDays ymd th
+LocalWords:  shiftByDays ADT petDog createDog petCat createCat Liskov
+LocalWords:  iff Wikipedia Vocalise StrayCat wikipedia AnimalMethods
+LocalWords:  DogMethods dogMethods Javascript SmartPhone GradStud src
+LocalWords:  svg cmdline Kdot Tsvg birthDate eg CourseGrade TODO OO
+LocalWords:  numberOfStudents gradstudent struct ListOfInt foldr env
+LocalWords:  multiplyBy squareAll mutliple args ys arg
+LocalWords:  currification recursiveCall MultipyBy EventListener IP
+LocalWords:  MyPrintAction onPress safePrint ErrorCode outOfInk noInk
+LocalWords:  andThen Awk parallelizing getChar StateOfTheWorld CSE hs
+LocalWords:  Carmack multithreaded externalities codebases monads SQL
+LocalWords:  SIMD intrinsics nitty allMyGlobals const Reusability CSP
+LocalWords:  codebase FIXME unix memoization Subnote subtasks IORef
+LocalWords:  newIORef newChan ghci updatable CSPVariable newVariable
+LocalWords:  erlang prolog ServerWithContinuations quux PAKCS MacOS
+LocalWords:  gcc sudo ln swi Pakcs pakcs untar KiCS uninstantiated zs
+LocalWords:  unifications arities reconciliate decompiler ello inline
+LocalWords:  derecursification defunctionalization fct TDA AFP
