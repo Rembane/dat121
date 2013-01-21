@@ -12,3 +12,4 @@ for url in urls:
 
 subprocess.call(['git', 'add', 'site'])
 subprocess.call(['git', 'commit', '-m', u'Autocommit %s' % unicode(datetime.now())])
+subprocess.call(['git', 'push'])
