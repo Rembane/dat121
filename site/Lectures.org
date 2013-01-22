@@ -650,58 +650,24 @@ goto sqrt;
 out2:
 #+end_example
 
-*** Trivia: What happens when the original program is recursive?
-
-- Loop (dynamic)
-- variables: a mess...
 ** Transformation: Explicit stack
+If there is recursion, one must use a stack.
+
+Translation of a call as goto:
+
+ - save local variables/arguments/caller (in the presence of recursion: push)
+ - goto
+ - restore local variables/... (pop)
+
+Translation of a return:
+
+- goto caller
 
 *** 1st example: factorial.
-Translation of a recursive call:
- - save local variables (push on a stack)
- - set caller (return address)
- - goto
- - restore local variables (pop)
 
-#+begin_example
--- Example call to 'fact'
-fact(13)
-...
-...
-function fact (n:Int)
-  if n = 0 then
-    return 1
-  else
-    return n * fact(n-1)
-#+end_example
-
-Straightforward application of rules:
-
-#+begin_example
--- Example call to 'fact'
-caller := out;
-n := 12;
-goto fact;
-out:
-
-...
-...
-
--- Definition of 'fact':
-fact:
-if n = 0 then
-  result := 1;
-  goto caller;
-else 
-  push(n,caller);         -- save locals         \
-  caller := continue;     -- remember caller      |
-  n := n-1;               -- set arguments        |    This is the translation
-  goto fact;              -- jump                 |        of the call  'fact(n-1)'
-continue:                                         |
-  pop(n,caller);          -- restore locals       /
-  result := n * result;   -- result (on the rhs of :=) is the result of the recursive call.
-  goto caller;            
-#+end_example
+The following example shows step-by-step how to transform recursion to
+jumps+stack.
+#+INCLUDE "fact.c" src C
 
 *** 2nd example: factorial (alternative algorithm)
 **** Source
@@ -717,106 +683,49 @@ function wrapper(n:Int)
   return fact(n,1);
 #+end_example
 **** Question: explain the algorithm.
-**** Target (by straightforward application of rules)
-#+begin_example
-wrapper:
-  acc := 1;
-  caller := out;
-  goto fact
-  out:
+**** Transformation
 
-fact: -- n,acc,caller are defined here.
-if n = 0 then
-  result := acc;
-  goto caller;
-else
-  push (n,acc,caller)
-  acc := acc * n;
-  n := n-1;
-  caller := continue;
-  goto fact;  
-  continue:
-  pop (n,acc,caller)
-  result := result; -- just forward the result of the recursive call.
-  goto caller;
-#+end_example
-**** Improvement:
-But:
+#+INCLUDE "factTail.c" src C
+
+The pattern 
+
+:   push (arguments,locals,caller)
+:   caller := continue
+:   goto fact
+: continue:
+:   pop (arguments,locals,caller);
+:   result := result // forward the result from the inner call
+:   goto caller
+
+can be optimised. Indeed:
+
  - The local variables are saved for nothing: they are not used after they are popped!
  - The result := result statement is useless.
-
-Hence we obtain:
-
-#+begin_example
-fact: -- n,acc,caller are defined here.
-if n = 0 then
-  result := acc;
-  goto caller;
-else
-  push (caller)
-  acc := acc * n;
-  n := n-1;
-  caller := continue;
-  goto fact;  
-  continue:
-  pop (caller)
-  goto caller;
-#+end_example
-
-What is the effect of the following?
-
-:  push (caller)
-:  caller := continue
-:  goto fact
-
-It fact, it is the same as 
-
-:  goto fact
-
-Indeed, after returning to "continue", the caller will just be popped
-from the stack; and we'll jump to it.  This would also be done by the
-normal "goto caller" return statement if we had not overwritten the
-caller with continue.
+ - In turn, saving the arguments, etc. is also useless, since one
+   jumps back to the caller immediately, where they will be popped from the stack.
 
 
-Hence, the stack can be removed altogether! This is called /tail-call elimination/. Why?
+Hence we obtain the pattern
 
+:   top_of_stack := (arguments,locals)
+:   push(caller);
+:   caller := continue
+:   goto fact
+: continue:
+:   pop(caller);
+:   goto caller
 
-We get:
-#+begin_example
-wrapper:
-  acc := 1;
-  caller := out;
-  goto fact
-  out:
+But the only thing we do after the call is to pop the caller and jump
+back...  So we might as well not jump to the piece of code labeled
+~continue~, and let the caller do the cleanup job.
 
-fact:
-if n = 0 then
-  result := acc;
-  goto caller;
-else
-  acc := n * acc; -- note the order of assignments
-  n := n-1;
-  goto fact:
-#+end_example
+:   top_of_stack := (arguments,locals) // do not overwrite the caller
+:   goto fact
 
-**** Final version
-Finally we can merge in the wrapper and reconstruct a loop:
-#+begin_example
-acc := 1;
-while n /= 0 do
-  acc := n * acc;
-  n := n-1;
-result := acc;
-#+end_example
-and even add some extra polish:
-#+begin_example
-function fact (n)
-  acc := 1;
-  foreach i in 1..n do
-    acc := i * acc;
-result := acc;
-#+end_example
+This is called [[http://en.wikipedia.org/wiki/Tail_call][tail-call elimination]].
+
+In the case of the factorial function, there are only tail calls, so
+the stack can be removed altogether!
 * Interlude: Garbage Collection
 aka. Automatic memory management
 The memory is freed automatically for you! (Magic!?)
