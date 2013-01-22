@@ -284,6 +284,8 @@ My version: every problem can be solved by adding a level of abstraction.
 - Memory cells
 - Program (assignments, arithmetic, logic, (conditional) jumps)
 
+See also: Turing Machine
+
 ** Example
 *** Feature: GOTO
 A pretty basic feature of imperative language is the jump ("GOTO");
@@ -363,7 +365,7 @@ Consider the following loop:
 #+begin_example
 while i > 0 do
   a[i] := b[i]
-  i = i-1
+  i := i-1
 #+end_example
 
 *** Target
@@ -381,7 +383,7 @@ done:
 
 Note in passing that such a job is typically performed by a C (or
 Java...) compiler. Indeed, the computer code has no notion of loop, it
-only knows about jumps
+only knows about jumps.
 
 *** Exercise (⋆)
 1. Translate the following to explicit gotos:
@@ -408,7 +410,7 @@ else
 It can be translated into:
 #+begin_example
   p := not(cond)
-  if p then goto label2
+  goto label2 when p is true
   part1
   goto done
 label2:
@@ -427,13 +429,14 @@ if cond then
   target = label1;
 else
   target = label2;
-goto done
+goto target
 label1:
   part1
-  goto doe
+  goto done
 label2:
   part2
 end
+done:
 #+end_example
 Can you figure out the type of the ~target~ variable?
 *** Exercise (⋆⋆) 
@@ -467,17 +470,28 @@ That is, if we have a piece of code that often swaps two variables:
   x := tmp;
   ...
   ...
+  tmp := x;
+  z := x;
+  x := tmp;
 #+end_example
 one can capture the pattern in a procedure
 #+begin_example
-procedure swap(by ref x, by ref y) 
+procedure swap(by reference x, by reference y) 
   local var tmp;
   tmp := x;
   y := x;
   x := tmp;
 #+end_example
 and simply call where needed.
-
+#+begin_example
+  swap(x,y)
+  ...
+  ...
+  swap(x,y)
+  ...
+  ...
+  swap(x,z)
+#+end_example
 Can you see why this would not work with parameter passing by value?
 *** Why is passing by reference useful?
 - "expressive power" : you can factor out parts of the computation
@@ -508,7 +522,7 @@ We can express this with the following typing for ~addressOf~:
 **** Trivia: whats the meaning of addressOf(addressOf(x))?
  none! because addressOf(x) is just a value, there is no location for it in the memory.
 **** Exercise (⋆)
-re-write the above in C syntax
+re-write the above in C syntax and let your compiler check your code.
 *** Translation: from reference-parameters to pointers 
 **** Source:
 (Supposing the language supports passing arguments by reference:)
@@ -565,11 +579,37 @@ b := b + a
 #+end_example
 
 *** Exercise: redo the transformations above, assuming call-by-value.
+*** TODO Name capture when substituting
 *** Question: What happens when the original program is recursive?
-The process never finishes!  
+Start:
+#+begin_example
+procedure fib(int x) 
+  if x <= 1 then
+    return 1;
+  else
+    tmp := fib (x-1)
+    return tmp + fib(x-2);
+#+end_example
+Inlining the 1st procedure call:
+#+begin_example
+procedure fib(int x) 
+  if x <= 1 then
+    return 1;
+  else
+    if x-1 <= 1 then
+      return 1;
+    else
+      tmp2 := fib (x-2)
+      tmp := tmp2 + fib(x-3);
+    return tmp + fib(x-2);
+#+end_example
 
-Hence inlining is an ok model as a dynamic model, but not as a static
-model in the presence of recursion.
+We end up with more calls than we started! The process never finishes!
+
+As a model for procedure calls, inlining is 
+- OK as a dynamic model: it works on concrete programs. For example
+inlining, ~fib(5)~ would eventually terminate
+- Not OK as a static model, at least in the presence of recursion.
 ** Transformation: Procedures ⟶ Gotos & Variables
 Source:
 #+begin_example

@@ -18,7 +18,7 @@ Looking for [[file:Lectures.org][the lecture notes]]?
   - Contact:
     - Room: EDIT 5469
     - E-mail: bernardy (chalmers.se)
-+ Nick Frolov
++ Nikita Frolov
   - Exercise tutor
   - Contact:
     - Room: EDIT 5461
