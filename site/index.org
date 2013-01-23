@@ -15,18 +15,16 @@ Looking for [[file:Lectures.org][the lecture notes]]?
 ** The teaching team
 + JP Bernardy
   - Course responsible & lecturer
-  - Contact:
-    - Room: EDIT 5469
-    - E-mail: bernardy (chalmers.se)
+  - Room: EDIT 5469
+  - E-mail: bernardy (chalmers.se)
 + Nikita Frolov
   - Exercise tutor
-  - Contact:
-    - Room: EDIT 5461
-    - E-mail: frolov (chalmers.se)
+  - Room: EDIT 5461
+  - E-mail: frolov (chalmers.se)
 + Dan Rosén
   - Exercise tutor
-    - Room: EDIT 5453
-    - E-mail: danr (chalmers.se)
+  - Room: EDIT 5453
+  - E-mail: danr (chalmers.se)
 
 ** Schedule & Organisation
 *** Schedule
