@@ -767,7 +767,7 @@ See also the Java calling convention.
 ** Encapsulation 
 Mechanisms to make the fields private
 
-*** Paradigm Shift: Abstract Data Type (ADT) 
+*** Paradigm: Abstract Data Type (ADT) 
  - Example: "stack", "priority queue", ... from your data structures course
  - Every data type comes with a specification
  - ... maybe in the form of _unit tests_
@@ -876,7 +876,7 @@ See also the [[http://en.wikipedia.org/wiki/Covariance_and_contravariance_(compu
 
 *** Extension (✪): function tables
 
-- Is the 'pet' function pointer ever modified?
+- Is the ~sound~ function pointer ever modified?
 - How can we save space if there are many methods per class? 
 
 ⟶ One more indirection!
@@ -893,7 +893,7 @@ record DogMethods
 dogMethods = {Pet := petDog, ...}
 #+end_example
 
-*** Paradigm Shift
+*** Paradigm: inheritance everywhere
   - Multiple "cases" can be implemented by inheriting a common class
   - Dogma: no "if".
   - Specific behavior is implemented in derived methods
@@ -905,22 +905,23 @@ http://en.wikipedia.org/wiki/ECMAScript_syntax#Objects
 
 ** Multiple-inheritance & interfaces
 *** Motivation
+Save work:
+1. Better reuse of code (possibly the derived class can use code from
+   both its parents)
+2. More polymorphism!
+
+Examples:
 #+begin_example
 class Computer
 class Phone
 class SmartPhone inherits Computer, Phone
 #+end_example
 
-
 #+begin_example
 class Teacher
 class Student
 class GradStud inherits Teacher, Student
 #+end_example
-
-1. Better reuse of code (possibly the derived class can use code from
-   both its parents)
-2. More polymorphism!
 
 *** Diamond problem
 **** On a conceptual level:
@@ -1004,9 +1005,8 @@ it is the same for all objects in a class). Hence the notion of
 /Interface/: a class without fields. In Java, there is special support
 for interfaces, and one can inherit many of them.
 
-Interfaces:
- - ✓ polymorphism 
- - × code-reuse    
+In sum, interfaces are for multiple subtyping but not multiple
+inheritance: polymorphism is well-supported, but not code-reuse.
 
 **** Exercise (⋆⋆)
 Modify the translation above to support interfaces
@@ -1541,7 +1541,7 @@ safePrint line =
          return 0
 #+end_src
 
-** Paradigm shift: HOT!
+** Paradigm: HOT!
 Higher-Order and Typed
 - Any part of a function can be abstracted over (before one could not
   abstract over functions)
@@ -1816,14 +1816,14 @@ How much memory is consumed by:
 
 ⟶ Some say: "in Haskell, lists are a _control structure_".
 
-** Paradigm shift: composition of transformations
+** Paradigm: composition of transformations
 
 - When writing a search function, the programmer can ALWAYS (and ONLY)
   return a list of ALL possible results (instead of "the first one").
 - Programs can be understood as "stream processors"
 - Dogma: no side effect (eg. no global state)
 
-** Paradigm shift: generate and prune
+** Paradigm: generate and prune
 - Generate infinite/large data structure
 - Only visit relevant parts 
 - Examples: game tree, processes
@@ -2263,7 +2263,7 @@ In the following [[file:Lists.curry][example]], we see transform the List functi
 and reverse to relations.
 #+INCLUDE "Lists.curry" src curry
 
-** Paradigm shift:
+** Paradigm: pure logic
 - No longer necessary to restrict oneself to relations that describe
   functions.
 - Dogma: no more functions, only relations
