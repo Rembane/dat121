@@ -621,7 +621,7 @@ function sqrt(x : Float) : Float
   return result;
 
 -- the calls:
-sqrt(12345)
+sqrt(12345);
 ...
 ...
 sqrt(6789);
@@ -650,7 +650,7 @@ goto sqrt;
 out2:
 #+end_example
 
-** Transformation: Explicit stack
+** Transformation: Recursion ⟶ Explicit stack
 If there is recursion, one must use a stack.
 
 Translation of a call as goto:
@@ -663,14 +663,18 @@ Translation of a return:
 
 - goto caller
 
-*** 1st example: factorial.
+*** Example: factorial.
 
 The following example shows step-by-step how to transform recursion to
 jumps+stack.
 #+INCLUDE "fact.c" src C
 
-*** 2nd example: factorial (alternative algorithm)
-**** Source
+** Transformation: Tail Recursion ⟶ Loop
+
+We will explain the transformation by using another algorithm to
+compute the factorial.
+
+*** Source
 #+begin_example
 function fact (n:Int,acc:Int)
   if n = 0 then
@@ -682,10 +686,8 @@ function fact (n:Int,acc:Int)
 function wrapper(n:Int)
   return fact(n,1);
 #+end_example
-**** Question: explain the algorithm.
-**** Transformation
-
-#+INCLUDE "factTail.c" src C
+*** Question: explain the algorithm.
+*** Transformation: tail-call elimination
 
 The pattern 
 
@@ -726,6 +728,10 @@ This is called [[http://en.wikipedia.org/wiki/Tail_call][tail-call elimination]]
 
 In the case of the factorial function, there are only tail calls, so
 the stack can be removed altogether!
+
+
+#+INCLUDE "factTail.c" src C
+
 * Interlude: Garbage Collection
 aka. Automatic memory management
 The memory is freed automatically for you! (Magic!?)
@@ -733,53 +739,30 @@ The memory is freed automatically for you! (Magic!?)
 
 Why GC discussed here?
 - Allows for much easier OOP (sharing)
-- Practically impossible to do FP/Logic without it (sharing!)
+- Practically impossible to do FP/Logic programming without it (sharing)
 
-** Q: Why does Firefox leak memory while it uses GC?
-** Q: why are imperative languages usually not using GC?
+** Question
+Firefox uses a GC, but still, it is leaking memory. What is going on?
+** Question
+Why are imperative languages usually not using GC?
 * Object-oriented programming
 ** Coupling data and related code
-*** Toy example: Date
+*** Example: Date
 
-#+begin_example
-class Date
+#+INCLUDE "Date.cpp" src cpp
 
-  field
-    year : Integer
-    month : Integer
-    day : Integer
+**** Translation: records + procedures
+#+INCLUDE "DateRec.cpp" src cpp
 
 
-  method ShiftByDays(days : Integer);
+**** Note: calling convention
 
-  constructor ymd(y,m,d : Integer)
-  constructor today  -- query the OS for current date
+Objects are, almost always, passed by reference.
 
+Methods often update the object they are applied to. If you want to be
+able to call such methods, you better have a reference to it.
 
--- Example use:
-appointment = today;
-appointment.shiftByDays(7);
-#+end_example
-
-**** Note: Objects are, almost always, passed by reference.
-Why is that?
-**** Translated into plain records + procedures
-
-#+begin_example
-record Date
-  Year : Integer
-  Month : Integer
-  Day : Integer
-  
-function today : Date;
-
-procedure ShiftByDays(this : Date by reference; days : Integer);
--- Why is "by reference" important?
-
--- Example use:
-appointment = today;
-shiftByDays(appointment,7);
-#+end_example
+See also the Java calling convention.
 
 ** Encapsulation 
 Mechanisms to make the fields private
@@ -797,91 +780,53 @@ Mechanisms to make the fields private
    Example: "Person" record.
  - Dogma: never any direct field access (cf. "set" and "get")
 
+*** Exercise
+Write a unit test for a valid date, and call it at appropriate points
+in the ~Date~ class
+*** Exercise
+Change the representation of the Date class to a single integer which
+counts the number of days since Jan 1st 2000.
 ** Inheritance
-*** Toy example:
+*** Example
 
-#+begin_example
-class Animal
-  method Pet
-     print "Undefined"
+Simple example of inheritance:
+#+INCLUDE "Animals.cpp" src cpp
 
-class Dog inherits Animal
-  method Pet
-     print "Shake tail"
-
-class Cat inherits Animal 
-  method Pet
-     print "Mew"
-
-
-procedure Test(c : Animal)
-  c.Pet
-
-Test(new Dog);
-Test(new Cat);
-#+end_example
 
 *** Transformation: embed method pointers
 
 The above example gets translated as follows:
 
-#+begin_example
-record Animal
-  field
-    Pet : function;
-
-record Dog 
-  field
-    Pet : function;
-
-procedure petDog(this : Dog by reference);
-  print "Shake tail"  -- (1)
-
-function createDog : Dog
-  return new Dog(Pet = petDog);  
-
-record Cat
-  field 
-     Pet : function;
-
-procedure petCat(this : Cat by reference);
-  print "Mew"
-
-function createCat : Cat
-  return new Cat(Pet = petCat);  
-
-procedure Test(c : Animal by reference)
-  c.Pet(c); -- (1)
-
-
-Test(cast<Animal> createDog); -- (2)
-Test(cast<Animal> createCat); -- (2)
-#+end_example
+#+INCLUDE "AnimalsRec.cpp" src cpp
 
 **** Question: what happens on line (1)
 
-- 'c.Pet' is a function pointer;
+- ~a->sound~ is a function pointer;
 - the function stored in that variable is called.
-- if c.Pet has been correctly set, either dog/cat case will be called.
+- if ~a->sound~ has been correctly set, either dog/cat case will be called.
+- note the indirect call
 
-**** Question: why are the casts (2) valid?
+**** Question: why are is cast (2) valid?
 The layout of the parent class is exactly the same as that of the subclass.
 **** Question: what if the Dog class had an extra method/field?
-(In general, there can be more fields/methods in the subclass, found _after_ the fields of the top class)
+(In general, there can be more fields/methods in the subclass, found
+_after_ the fields of the top class)
+**** Question: could you copy objects instead of passing by reference?
+Hint: what happens in the ~test~ function in the above example?
 **** Liskov substitution principle and Polymorphism
 
-if class B inherits class A, then, for any x,
+if class ~B~ inherits class ~A~, then, for any x,
 
 :   x : B  ⇒  x : A
 
 This means that 
 
-1. 'x' has multiple types 
+1. ~x~ has multiple types 
 
-2. Whenever a function 'f' has an parameter of type 'A', one can pass
-   an argument of type 'B'. By deriving from 'A', a lot of code is
-   automatically ready to work with 'B'.  (Conversely, if you write
-   code working for A, it will be useful in many contexts)
+2. That is Whenever a function ~f~ has an parameter of type ~A~, one
+   can pass an argument of type ~B~.  By deriving from ~A~, a lot of
+   code is automatically ready to work with ~B~.  (Conversely, if you
+   write code working for ~A~, it will be useful in many contexts)
 
 This is one instance of an important phenomenon: /polymorphism/. The
 kind of polymorphism linked with inheritance is /inclusion
@@ -890,22 +835,24 @@ polymorphism/. Recall the definition of set-inclusion:
 
 :         B ⊆ A     iff     x ∈ B  ⇒  x ∈ A
 
-One says that B is a subtype of A.
+One says that ~B~ is a subtype of ~A~.
 
-Read (✪) more about polymorphism on Wikipedia.  (I prefer the
-article on [[http://en.wikipedia.org/wiki/Polymorphism_(computer_science)][polymorphism]],
-http://en.wikipedia.org/wiki/Liskov_substitution_principle is badly
-written in my opinion)
-**** Question: could you copy objects instead of passing by reference?
-Hint: what happens in the "Test" function in the above example?
+Liskov proposes the principle:
+
+if ~A~ is a subtype of ~B~ and prove a property about any object of
+~A~, then it should be true of any object of type ~B~.
+
+This is somewhat stronger than the above.
+
+Read (✪) more about [[http://en.wikipedia.org/wiki/Polymorphism_(computer_science)][polymorphism]] and the [[http://en.wikipedia.org/wiki/Liskov_substitution_principle][substitution principle]] on
+Wikipedia.
+
 *** Exercises
-Apply the transformation on each of the following examples:
+Modify the ~Cat~ class so that after meowing 10 times it makes another
+sound.
 
-- call the function 'Vocalise' by default in the 'Pet' method
-- add a StrayCat subclass which: 
-  + scratches instead of meowing;
-  + counts of the number of wounds inflicted.
-
+Apply the transformation on the resulting code.
+    
 *** What happens when functions have arguments?
 In many languages, the type of the arguments of derived functions must
 be the SAME as that of the overridden function.
@@ -947,14 +894,13 @@ dogMethods = {Pet := petDog, ...}
 #+end_example
 
 *** Paradigm Shift
-
   - Multiple "cases" can be implemented by inheriting a common class
   - Dogma: no "if".
   - Specific behavior is implemented in derived methods
   
   - Open question: multiple dispatch!
 
-*** (✧) Reading/Exercise: Javascript prototypes
+*** ✪ Reading/Exercise: Javascript prototypes
 http://en.wikipedia.org/wiki/ECMAScript_syntax#Objects
 
 ** Multiple-inheritance & interfaces
@@ -1028,7 +974,6 @@ BirthDate
 numberOfStudents
 #+end_example
 
-
 The record can be casted to Student (as normal, the 3 last fields will
 never be accessed by methods in the Student class) or Teacher (by
 adding 3 to the pointer).
@@ -1045,8 +990,9 @@ CourseGrade
 numberOfStudents
 #+end_example
 
-Problem: what happens if you see the GradStud as a Teacher?
---> The translation to "pure" imperative programming becomes much more complicated. 
+Problem: what happens if you see the GradStud as a Teacher?  The
+translation to "pure" imperative programming becomes much more
+complicated.
 
 *** Interfaces
 
@@ -1391,8 +1337,15 @@ used in the argument.
 Note that there may be more kind of closures, so there may be more
 cases in [[(ref:closure definition)]].
 
-**** Read:
-[[http://en.wikipedia.org/wiki/Closure_(computer_science)][Closures on wikipedia]]
+**** Definition: Closure
+
+A closure is the *representation* of a lambda-abstraction; ie. a piece
+of code together with the environment where it is to be executed.
+
+Some authors sometimes use closure when they mean a
+lambda-abstraction. Do not be confused: remember the above definition.
+
+(The definition of [[http://en.wikipedia.org/wiki/Closure][closures on wikipedia]] agrees with me.)
 
 **** Exercise (⋆⋆): Implement the above example C. 
 Hint: Instead of a 'tag', use a function pointer.
