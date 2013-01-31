@@ -5,6 +5,8 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
+- <2013-01-31 Thu> Answers for week 2 questions for week 3 [[file:All.pdf][ready]].
+- <2013-01-30 Wed> Uploaded videos: [[file:factorial.mov][recursion and stack]], [[factorial-tail.mov][tail recursion]].
 - <2013-01-21 Mon> Course begins
 * Organisation info
 
