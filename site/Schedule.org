@@ -21,15 +21,15 @@ https://web.timeedit.se/chalmers_se/db1/timeedit/p/public/r.html?sid=3&h=t&p=0.d
 
 * <<Timetable>>
 
-| Week | Starts | Lecture 1 | Lecture 2 | Exercises |
-|------+--------+-----------+-----------+-----------|
-|    1 |   0121 | Intr      | IP 1      | EX 1      |
-|    2 |   0128 | IP 2      | OO 2      | EX 2      |
-|    3 |   0204 | FP 1      | FP 2      | EX 3      |
-|    4 |   0211 | FP 3      | CHARM     | EX 4      |
-|    5 |   0218 | FP 4      | CP 1      | EX 5      |
-|    6 |   0225 | CP 2      | LP 1      | EX 6      |
-|    7 |   0304 | LP 2      | Q&A       | EX 7      |
+| Week | Starts | Lecture 1 | Lecture 2  | Exercises |
+|------+--------+-----------+------------+-----------|
+|    1 |   0121 | Intr      | IP 1       | EX 1      |
+|    2 |   0128 | IP 2      | OO         | EX 2      |
+|    3 |   0204 | FP 1      | FP 2       | EX 3      |
+|    4 |   0211 | FP 3      | No lecture | EX 4      |
+|    5 |   0218 | FP 4      | CP 1       | EX 5      |
+|    6 |   0225 | CP 2      | LP 1       | EX 6      |
+|    7 |   0304 | LP 2      | Q&A        | EX 7      |
 
 See table below for detail of contents.
 
@@ -39,7 +39,7 @@ See table below for detail of contents.
 | IP 1 | Goto ↔ Loops, Pointers and passing by reference, Inlining procedures |
 | EX 1 | Exercises: marked with @1 in file:All.pdf                            |
 | IP 2 | Procedures → Gotos, Explicit stack                                   |
-| OO 1 | Inheritance, Interfaces, Notion of co/contra variance                |
+| OO   | Inheritance, Interfaces, Notion of co/contra variance                |
 | EX 2 | Exercises:  marked with @2 in file:All.pdf                           |
 | FP 1 | Algebraic Types & Pattern matching                                   |
 | FP 2 | Higher-order functions & Currification                               |
@@ -71,6 +71,7 @@ file:All.pdf file each week: exercises may have been updated.
     SCHEDULED:  <2013-04-01 Mon 13:15>
     In room 5128
 ** Course evaluation
+CHEDULED:  <2013-02-05 Tue 09:50>
 Representatives:
 
 - RAN XUXIN xuxin student.chalmers.se
@@ -91,12 +92,12 @@ Items:
   concepts.
 ***** 2013
 - Different style of exercise sessions
-- More course material will be produced
+- More course material produced
 **** Study climate
 **** Problematic course items; can resources be used better?
 **** Course-specific questions in questionnaire; other material for final meeting?
-
 *** Evaluation Meeting 3   
 
 * TODO Next year
-Swap FP and OO
+- Make one "admin" page; index just for announce and links.
+- Swap FP and OO

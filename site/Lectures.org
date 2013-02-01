@@ -1050,62 +1050,160 @@ In Haskell:
 - Left leaning:
   : f x y == (f x) y  ==  (f(x))(y)
 
-*** TODO Forward reference: function arrow is RIGHT associative
+*** Function arrow is RIGHT associative
+
+:   a -> b -> c     ===       a -> (b -> c)
 
 ** Algebraic Types
+Given a type ~A~ and a type ~B~, we can construct:
+
+- a product type ~A × B~
+- a sum type ~A + B~
    
-If A and B are data types, then...
+*** Sum types 
 
-- what is  A + B ?
-  + similar to union in C (what is the difference?)
+From a value of type ~A + B~, one can extract /either/ an ~A~ /or/ a
+~B~. Conversely, it suffices of either an ~A~ or a ~B~ to construct a
+value of type ~A + B~.
 
-- what is A × B ?
-  + similar to records in Pascal/Ada/...; struct in C (difference?)
+- In Java, this can be implemented by having two clases ~A~ and ~B~
+extending a common super-class (or implementing a common interface).
 
+- In C, this can be implemented by a /tagged/ union. (Unions in C do not
+give information about which of ~A~ or ~B~ is available, so an extra
+bit of information (the tag) must be used for that purporse)
 
-Let's count the number of inhabitants of the type:
+- In Haskell, a sum type can be implemented like this:
 
-:    #(A + B) = #A + #B
-:    #(A × B) = #A × #B
+: data APlusB = ATag A | BTag B
 
-To "bootstrap" we also need types 0 (empty type, unit of +) and 1 (singleton, unit of ×)
+note that each case uses a tag (~ATag~ or ~BTag~ in this case). The
+tags is used in pattern matching:
 
-*** Trivia (✪): what is A → B, algebraically?
-*** Examples
+:  test :: APlusB -> String
+:  test (ATag x) = "I got an A: " ++ show x
+:  test (BTag y) = "I got a  B: " ++ show y
 
-: Bool ≅ 1 + 1
+The tags can be used to construct values, indeed, they are also (and
+most commonly) called constructors.
 
-Giving a name to the cases:
+:  ATag :: A -> APlusB
 
-: Bool = (True ↦ 1) + (False ↦ 1)
+:  BTag :: B -> APlusB
 
-In Haskell syntax:
+*** Product types
+
+From a value of ~A × B~, one can extract /both/ an ~A~ /and/ a
+~B~. Conversely, from both an ~A~ and a ~B~ one can construct a value
+of type ~A × B~.
+
+- In Java, C, etc. this can be implemented by constructing a class or
+  record which has both a field of type ~A~ and one of type ~B~.
+
+- In Haskell, a product type can be implemented like this:
+
+:  data ACrossB = Tag A B
+
+when pattern matching on the ~Tag~ one gets both an ~A~ and a ~B~.
+
+: test :: ACrossB -> String
+: test (Tag x y) = "I got an A: " ++ show x ++ " and a B:" ++ show y
+
+There is also special syntax for product types. (Note: the syntax is
+the same for types and values)
+
+:  test : (A,B) -> String
+:  test (x,y) = "I got an A: " ++ show x ++ " and a B:" ++ show y
+
+Product types are also called tuples.
+
+*** A bit of algebra
+
+For every a algebraic law, there is an isomorphism. Consider:
+
+:   (A + B)×C ≅ A×C + B×C
+
+Then we have two functions between them (and composing them is the
+identity).
+
+#+INCLUDE "Algebra1.hs" src haskell
+
+This is why the types are called algebraic!
+
+Some more laws, which all translate to isomorphisms:
+
+:   A×B ≅ B×A
+:   (A + 0) ≅ A
+:   (A × 1) ≅ A
+:   (A × 0) ≅ 0
+
+- The unit type ~1~ is a tuple with no element; in Haskell written ~()~.
+- The empty type ~0~ is a , which can be defined in Haskell by 
+
+:  data Void
+
+ with no constructors.
+
+*** Example
+
+:   Bool ≅ 1 + 1
+
+In Haskell syntax one must choose tags:
 
 : data Bool = True | False
 
+*** Parametric types
+    
+In functional languages it is common to use abstraction in types
+themselves.
+
+For example we can abstract over ~A~ and ~B~ in the type
+
+:  data APlusB = ATag A | BTag B
+
+to obtain
+
+:  data Plus a b = ATag a | BTag b
+
+Notes:
+- the type variables start with a lower case character; the tags with
+  an upper case character
+- the type variables appear just before the ~=~ sign (as in function
+  definitions)
+
+*** Recursive types
 Lists can be defined as follows, using _recursion_:
 
-: List a = (Nil ↦ 1) + (Cons ↦ (a × List a))
-
+: List a = 1 + (a × List a)
 
 Haskell syntax:
 
 : data List a = Nil | Cons a (List a)
 
-*** TODO Values and Pattern Matching
-inhabitants of A + B; A × B; and matching over them.
+Trees with any number of children:
+
+: RoseTree a = RT a (List a)
+
+In fact there is a special syntax for lists in Haskell:
+
+: data [a] = [] | a : [a]
+
+(Note that the brackets have a different meaning if used in a type
+expression or in a value expression)
+
+Examples:
+
+- 'a':'b':'c':[] has type [Char]
+- [1,2,4] has type [Int]
+
+*** Example
+
+#+INCLUDE "Lists.hs" src haskell
+
 *** Transformation: Algebraic data type ⟶ inheritance
 - ×: supported by records
 - +: one can use inheritance to implement sum types, as in the
   following example.
-
-#+begin_src haskell
-data ListOfInt = Cons Int ListOfInt | Nil
-
-sum : ListOfInt -> Int
-sum Nil = 0
-sum (Cons x xs) = x + sum xs
-#+end_src
 #+begin_src pseudo-java
 
 interface ListOfInt 
@@ -1124,7 +1222,11 @@ class Cons extends ListOfInt
     return head + tail.sum;
   }
 #+end_src
-**** (⋆⋆⋆) Polymorphic version
+**** Exercise
+ Translate the append function.
+**** (⋆⋆⋆) Type-parametric version
+Java has parametric classes, so a polymorphic list can even be encoded
+as follows. Review this code after <<Closures>> have been introduced.
 
 #+begin_src haskell
 data List a = Cons a (List a) | Nil
@@ -1161,7 +1263,7 @@ the List interface.
 
 (Note: one could also just represent Nil by a null object)
 
-**** Remark: the expression problem
+*** Remark: the expression problem
 
 - In an OO language such as Java, it is convenient to add new cases to
   sum types, but it is cumbersome to add a new algorithm. (In the
@@ -1222,7 +1324,7 @@ Capture the pattern in the following
 
 *** Polymorphism comes back (⋆⋆⋆)
 
-Note that, both in foldr and map, by abstracting over the functions to
+Note that, both in ~foldr~ and ~map~, by abstracting over the functions to
 apply on the elements on the list, the resulting code is also
 abstracted from the /type/ of the elements in the list. That is, (eg.)
 map works on lists of /anything/, as long as the type of function that
@@ -1230,7 +1332,7 @@ we pass to map (1st argument) matches. This is captured formally in
 the type of map.
 
 Effectively, map has mutliple types. Because the type is parametrized
-over any types (a,b), this is called /parametric polymorphism/.
+over any types ~a~ and ~b~, this is called /parametric polymorphism/.
 
 *** Reading: 
 "Can Programming Be Liberated From the von Neumann Style?", John
@@ -1238,24 +1340,31 @@ Backus, 1977 Turing Award Lecture
 http://www.thocp.net/biographies/papers/backus_turingaward_lecture.pdf
 (recommended to read up to p. 620).
 
-** Transformation: Currification
+** Some more algebra
+~A → B~ corresponds to ~B^A~
+
+Indeed:
+
+- Bool → A ≅ A × A
+- (A+B) → C ≅ (A → C) × (B → C)
+- (A × B) → C ≅ A → (B → C)
+
+*** Transformation: Currification
+
+The last of these isomorphisms is (implicitly) used all the time in
+Haskell programming.
 
 #+begin_example
-f : (A × B) → C
-f = ...
+currify : ((A × B) → C)  →   (A → (B → C))
+currify = \f -> \a -> \b -> f (a,b)
 
-g : A → (B → C)
-g = \a -> \b -> f (a,b)
-
-h : (A × B) → C
-h (a,b) = (g a) b
+uncurrify :: (A → (B → C)) → ((A × B) → C)
+uncurrify = \g -> \(a,b) -> f a b
 #+end_example
 
-Remark: f ≡ h
-
-*** Note: try to read A → B as B^A
-... then, what is currification?
-**** Extra: can you implement other algebraic laws?
+Indeed, one almost always write ~A → B → C~ (which is equal to ~A → (B
+→ C)~ by associativity rules) for a function which takes two
+arguments, one of type ~A~ and one of type ~B~.
 
 ** Removing Higher-Order functions
 *** Transformation: Inlining higher-order functions
