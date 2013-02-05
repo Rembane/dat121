@@ -579,7 +579,7 @@ b := b + a
 #+end_example
 
 *** Exercise: redo the transformations above, assuming call-by-value.
-*** TODO Name capture when substituting
+*** TODO Name capture when substituting (✪)
 *** Question: What happens when the original program is recursive?
 Start:
 #+begin_example
@@ -1741,6 +1741,14 @@ Consider a binary tree:
 #+begin_src haskell
 data Tree = Leaf
           | Bin Tree Int Tree
+
+tree = Bin 10 
+         (Bin 5 
+            (Bin 2 Leaf Leaf)
+            (Bin 7 Leaf Leaf)) 
+         (Bin 20 
+            (Bin 12 Leaf Leaf)
+            (Bin 22 Leaf Leaf))
 #+end_src
 
 #+begin_src dot :file tree-orig.svg :cmdline -Kdot -Tsvg :exports results
@@ -1761,6 +1769,8 @@ And say we insert 13 in it using the function:
 insert x Leaf = Bin Leaf x Leaf
 insert x (Bin l y r) | x < y = Bin (insert x l) y r
                      | x >= y = Bin l y (insert y r)
+
+tree2 = insert 13 tree
 #+end_src
 
 
@@ -1793,8 +1803,11 @@ new12 -> new13;
 #+RESULTS:
 [[file:tree-modif.svg]]
 
-*** Question: which nodes will be considered as garbage during the next collection? 
-
+*** Question
+Which nodes will be considered as garbage during the next collection,
+assuming that the reference to the old tree is dropped?
+*** Answer
+black nodes: 10, 20, 12
 ** Transformation: Explicit State
 
 - How can we represent imperative programs without using side effects?
