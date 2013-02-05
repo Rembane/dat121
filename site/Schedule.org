@@ -42,9 +42,9 @@ See table below for detail of contents.
 | OO   | Inheritance, Interfaces, Notion of co/contra variance                               |
 | EX 2 | Exercises:  marked with @2 in file:All.pdf                                          |
 | FP 1 | Algebraic Types, Pattern matching, Parametric types, Currification & HO Abstraction |
-| FP 2 | HOF, HOT paradigms and Closures                                                     |
 | EX 3 | Exercises marked with @3 in file:All.pdf                                            |
-| FP 3 | Explicit state                                                                      |
+| FP 2 | HOF, HOT paradigm and eliminating HOF: Inlining; Closures                           |
+| FP 3 | Explicit state and purity                                                           |
 | EX 4 | Exercises marked with @4 in file:All.pdf                                            |
 | FP 4 | Laziness & Explicit thunks                                                          |
 | CP 1 | State-managing process                                                              |

@@ -926,10 +926,10 @@ class GradStud inherits Teacher, Student
 
 *** Diamond problem
 **** On a conceptual level:
-#+begin_src dot :file diamond.svg :cmdline -Kdot -Tsvg
+#+begin_src dot :file diamond.svg :cmdline -Kdot -Tsvg :exports results
 digraph G {
    node [shape="record"];
-   "Person" [label="{Person | { fields | {name | birthDate | ...}}}"];
+   "Person" [label="{Person | { fields | {name | birthDate | Boss | ...}}}"];
    Person -> Student -> "Grad. Student"
    Person -> Teacher -> "Grad. Student"
 }
@@ -1303,7 +1303,7 @@ Indeed, one almost always write ~A → B → C~ (which is equal to ~A → (B
 → C)~ by associativity rules) for a function which takes two
 arguments, one of type ~A~ and one of type ~B~.
 
-** Higher-order functions in practice
+** Abstracting over functions
 *** Example: fold (sometimes called reduce)
 
 Consider the following function, to sum the elements in a list:
@@ -1321,10 +1321,10 @@ product (Cons x xs) = x * product xs
 
 *Same pattern ⟶ Abstract out the difference ! (Parametrize)*
 
-Exercise: fill in the question mark in the following snippet
 #+begin_src haskell
 foldr :: (a -> b -> b) -> b -> [a] -> b
-foldr f k xs = ?
+foldr (?) k [] = k
+foldr (?) k (x:xs) = x ? foldr (?) k xs
 #+end_src
 such that
 
@@ -1336,8 +1336,8 @@ and
 - Notes
   + I give some help by writing the type of the foldr function; but 
     you can ignore it for now.
-  + 'foldr' is a function taking another function in parameter: a
-    higher order function.
+  + ~foldr~ is a function taking another function in parameter: a
+    higher-order function.
 
 *** Example: map
 
@@ -1370,6 +1370,22 @@ over any types ~a~ and ~b~, this is called /parametric polymorphism/.
 Backus, 1977 Turing Award Lecture
 http://www.thocp.net/biographies/papers/backus_turingaward_lecture.pdf
 (recommended to read up to p. 620).
+
+** Paradigm: HOT!
+Higher-Order and Typed
+- Any part of a function can be abstracted over (before one could not
+  abstract over functions)
+  + Possibility to make the code more clear
+  + Good for reuse!
+- Types capture a coarse-grained meaning of each function
+  + One does not get lost in keeping track of details (so easily)
+  + Can use function types to represent objects that were before complex data structures.
+    - example: A set can be represented by its characteristic function
+    - There are trade-offs (performance!)
+- Further reading (⋆) 
+   + Haskell vs. Ada vs. C++ vs. Awk vs. ... ─ An Experiment in Software Prototyping Productivity
+   + especially, sec. 6.1, 7, 8
+   + http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.117.1208&rep=rep1&type=pdf
 
 ** Removing Higher-Order functions
 Remark that 1st order Haskell programs are easy to translate to C.
@@ -1408,7 +1424,7 @@ Reduce again:
 #+begin_src haskell
 multiply n xs = case xs of
     [] ->  []
-    (x:xs) -> x * n : recursiveCall f xs
+    (x:xs) -> x * n : multiply f xs
 #+end_src
 
 Downsides:
@@ -1506,14 +1522,14 @@ map(new MultipyBy(n), xs)
 
 See the similarity with Observer/EventListener pattern in Java:
 
-#+begin_src 
+#+begin_src pseudo-Java
 interface Listener -- "Closure"
   void respond(); -- "apply"
 
 class MyPrintAction implements Listener -- "Function representation"
    String text -- "environment"
    respond() {
-     print text;
+     print(text);
    }
   
 button.onPress(new MyPrintAction("Hello there"));
@@ -1522,124 +1538,8 @@ button.onPress(new MyPrintAction("Hello there"));
 Hence: "Objects are Poor Man's closures."
 
 **** Exercise: polymorphic closures
-In the above we had closures of type ~Int -> Int~. How would you support
-polymorphic closures?
-
-** Transformation: Explicit State
-
-- How can we represent imperative programs without using side effects?
-- Idea: pass around the "state of the world" explicitly
-- Functions are transformed as follows:
-
-:  print : String -> () -- in an imperative language, the state is implicit
-
-:  print : String -> State -> State × () -- after making the state explicit
-
-
-Assuming the "state of the world" is only the contents of the output
-file, then 'print' does what?
-
-*** Exercise: implement "safePrint" functionally...
-
-#+begin_example
-procedure safePrint(line) : ErrorCode
-  if outOfInk then
-    return -1
-  else
-    print(line)
-    return 0
-#+end_example
-
-... given the imperative function
-
-: outOfInk : Bool
-
-**** Questions
- 1. What is the type of outOfInk in the functional representation ?
- 2. What is the translation ?
-
-**** Answers
-outOfInk :: State -> Bool × State
-
-safePrint :: String -> State -> ErrorCode × State
-safePrint    line      s1 =
-   let (noInk,s2) = outOfInk s1
-   in  if noInk then (-1,s2)
-                else let (s3,()) = print line s2
-                     in  (0,s3)
-
-*** Imperative syntax in Haskell
-
-'IP a' = type of imperative programs returning a value of type a.
-
-: type IP a = State -> State × a
-
-Generic way to sequence two 'IP a':
-
-#+begin_src haskell
-andThen :: IP a -> IP b -> IP b
-f `andThen` g = \s0 -> let (s1,a) = f s0
-                           (s2,b) = g s1
-                       in  (s2,b)
-#+end_src
-
-But what if the 2nd program uses the returned value of the 1st?
-Then (in general) the 2nd program must depend on 'a':
-
-#+begin_src haskell
-andThen :: IP a -> (a -> IP b) -> IP b
-f `andThen` g = \s0 -> let (s1,a) = f s0
-                           (s2,b) = g a s1
-                       in  (s2,b)
-#+end_src
-
-If you _can_ define a function with the above type, then Haskell gives
-you special syntax for imperative programming. If you give:
-
-#+begin_src haskell
-instance Monad IP where
-  (>>=) = andThen
-  return x = \s -> (s,x)
-  -- when x does not depend on the state
-#+end_src
-
-Then the following is valid:
-
-#+begin_src haskell
-  safePrint line = do
-    noInk <- outOfInk  
-    if noInk
-      then return -1
-      else do print line
-              return 0
-#+end_src
-            
-In fact, the meaning of "imperative" is given by that function -- andThen in our case:
-
-#+begin_src haskell 
-safePrint line = 
-  outOfInk `andThen` \noInk ->
-  if noInk 
-    then return -1
-    else print line `andThen` \() ->
-         return 0
-#+end_src
-
-** Paradigm: HOT!
-Higher-Order and Typed
-- Any part of a function can be abstracted over (before one could not
-  abstract over functions)
-  + Possibility to make the code more clear
-  + Good for reuse!
-- Types capture a coarse-grained meaning of each function
-  + One does not get lost in keeping track of details (so easily)
-  + Can use function types to represent objects that were before complex data structures.
-    - example: A set can be represented by its characteristic function
-    - There are trade-offs (performance!)
-- Further reading (⋆) 
-   + Haskell vs. Ada vs. C++ vs. Awk vs. ... ─ An Experiment in Software Prototyping Productivity
-   + especially, sec. 6.1, 7, 8
-   + http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.117.1208&rep=rep1&type=pdf
+In the above we had closures of type ~Int → Int~. How would you
+support polymorphic closures?
 
 ** Purity and its Consequences
 
@@ -1657,43 +1557,50 @@ Did you know that side effects...
 | Mathematical function  | sin     |
 | Function in (say) Java | getChar |
 
-The behavior of sin depends only on its arguments; whereas the
+The behavior of ~sin~ depends only on its arguments; whereas the
 behavior of getChar depends on an (implicit) environment.
 
-In other words, all the dependencies of a function are /explicit/.
+In other words, all the dependencies of a pure function are /explicit/.
 
 **** Attention: contrast with the Haskell function getChar
 
 : getChar :: IO Char
 
-and remember... 
+we will see later that ~IO~ hides something:
 
 : IO x  ≃   StateOfTheWorld -> (StateOfTheWorld, x)
 
+**** Example of purity
 
-**** TODO: sin + cos
+In mathematics you have ~(sin x)^2 + (cos x)^2 = 1~. So, you can
+always replace this complex expression by just the constant
+~1~. However, in the presence of side effects, this cannot be done!
 
 *** Testing is /much/ easier
 
-Example: 
-
+For example, in order to test the function ~getChar~ in an imperative
+language, one has to
 
 - emulate the user pressing key 'x'
 : a = getChar()
 - verify a == 'x'
 
-Contrast with:
+This might even not be enough: maybe the function depends on more
+'hidden variable' (is the character buffered, ...)
+
+Contrast the above with testing a pure function:
 
 : sin π == 0 
 
 In general:
-- no guesswork to know what a function depends on
-- can (relatively) easily explore the input space of the function
+- there is no guesswork to know what a function depends on
+- one can (relatively) easily explore the input space of the function
 
-*** More optimizations possible (which ones?)
-- CSE (gotchas)
-- Fusion
-- ...
+*** More optimizations are possible
+Examples:
+  - Common Subexpression Elimination (caveat: changes the complexity of the code)
+  - Fusion
+  - ...
 *** Easier parallelism/concurrency (cf. Erlang)
 
 :    x = 0
@@ -1701,8 +1608,8 @@ In general:
   
     Value of x ?     
 
-*** Sharing is ALWAYS safe! (see in a moment)
-*** Possible to use laziness  (see in a moment)
+*** Sharing is ALWAYS safe! (see below)
+*** Possible to use laziness  (see below)
 *** John Carmack on Purity:
 
 http://www.altdevblogaday.com/2012/04/26/functional-programming-in-c/
@@ -1831,12 +1738,12 @@ changes will result in.
 
 Consider a binary tree:
 
-#+begin_src 
+#+begin_src haskell
 data Tree = Leaf
           | Bin Tree Int Tree
 #+end_src
 
-#+begin_src dot :file tree-orig.svg :cmdline -Kdot -Tsvg
+#+begin_src dot :file tree-orig.svg :cmdline -Kdot -Tsvg :exports results
 digraph G {
   10 -> 5 -> 2; 
         5 -> 7;
@@ -1845,20 +1752,22 @@ digraph G {
 }
 #+end_src
 
+#+RESULTS:
+[[file:tree-orig.svg]]
+
 And say we insert 13 in it using the function: 
 
 #+begin_src haskell
 insert x Leaf = Bin Leaf x Leaf
 insert x (Bin l y r) | x < y = Bin (insert x l) y r
-                     | ...
+                     | x >= y = Bin l y (insert y r)
 #+end_src
 
 
 The new tree /shares/ most of its contents
 with the old one:
 
-FIXME: verify this diagram
-#+begin_src dot :file tree-orig.svg :cmdline -Kdot -Tsvg
+#+begin_src dot :file tree-modif.svg :cmdline -Kdot -Tsvg :exports results
 digraph G {
   10 -> 5 -> 2; 
         5 -> 7;
@@ -1881,7 +1790,113 @@ new12 -> new13;
 }
 #+end_src
 
+#+RESULTS:
+[[file:tree-modif.svg]]
+
 *** Question: which nodes will be considered as garbage during the next collection? 
+
+** Transformation: Explicit State
+
+- How can we represent imperative programs without using side effects?
+- Idea: pass around the "state of the world" explicitly
+- Functions are transformed as follows:
+
+:  print : String -> () -- in an imperative language, the state is implicit
+
+:  print : String -> State -> State × () -- after making the state explicit
+
+
+Assuming the "state of the world" is only the contents of the output
+file, then ~print~ writes in the appropriate "file" found in there. In
+the simplest case, ~State~ is a list of characters, and ~print~ just
+appends to it.
+
+*** Exercise: make the state explicit in "safePrint" 
+
+#+begin_example
+procedure safePrint(line) : ErrorCode
+  if outOfInk then
+    return -1
+  else
+    print(line)
+    return 0
+#+end_example
+
+... given the imperative function
+
+: outOfInk : Bool
+
+**** Questions
+ 1. What is the type of ~outOfInk~ in the functional representation ?
+ 2. What is the translation ?
+
+**** Answers
+: outOfInk :: State -> Bool × State
+: 
+: safePrint :: String -> State -> ErrorCode × State
+: safePrint    line      s1 =
+:    let (noInk,s2) = outOfInk s1
+:    in  if noInk then (-1,s2)
+:                 else let (s3,()) = print line s2
+:                      in  (0,s3)
+
+*** Imperative syntax in Haskell
+
+~IP a~ = the type of imperative programs returning a value of type ~a~.
+
+: type IP a = State -> State × a
+
+There is a generic way to sequence two values of type ~IP a~:
+
+#+begin_src haskell
+andThen :: IP a -> IP b -> IP b
+f `andThen` g = \s0 -> let (s1,a) = f s0
+                           (s2,b) = g s1
+                       in  (s2,b)
+#+end_src
+
+But what if the 2nd program uses the returned value of the 1st?
+Then (in general) the 2nd program must depend on ~a~:
+
+#+begin_src haskell
+andThen :: IP a -> (a -> IP b) -> IP b
+f `andThen` g = \s0 -> let (s1,a) = f s0
+                           (s2,b) = g a s1
+                       in  (s2,b)
+#+end_src
+
+If you _can_ define a function with the above type, then Haskell gives
+you special syntax for imperative programming. If you give:
+
+#+begin_src haskell
+instance Monad IP where
+  (>>=) = andThen
+  return x = \s -> (s,x)
+  -- when x does not depend on the state
+#+end_src
+
+Then the following is valid:
+
+#+begin_src haskell
+  safePrint line = do
+    noInk <- outOfInk  
+    if noInk
+      then return -1
+      else do print line
+              return 0
+#+end_src
+            
+In fact, the meaning of "imperative" is given by that function
+(~andThen~ in our case):
+
+#+begin_src haskell 
+safePrint line = 
+  outOfInk `andThen` \noInk ->
+  if noInk 
+    then return -1
+    else print line `andThen` \() ->
+         return 0
+#+end_src
 
 ** Laziness
 *** Question: How much memory is used by map?
@@ -2490,7 +2505,7 @@ the course.
 
 (NOTE: You should know also how to "revert" a transformation!)
 
-#+begin_src dot :file transformations.svg :cmdline -Kdot -Tsvg
+#+begin_src dot :file transformations.svg :cmdline -Kdot -Tsvg :exports results
 digraph G {
    Imperative -> Machine [label="explicit gotos"]
    Imperative -> Machine [label="explicit stack\n(derecursification)"]
@@ -2545,6 +2560,7 @@ Courses:
 - Transforming failure into a list of successes (Wadler)
 - Typed logical variables in Haskell
 
+*** Local Words (ignore)
 LocalWords:  stylesheet css href html renderer Neumann shaper Perlis
 LocalWords:  Clojure de Erlang's multithreading GOTO Hoare's izable
 LocalWords:  shapers Prolog Prolog's Monads someValue ItsType greetMe
