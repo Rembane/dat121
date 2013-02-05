@@ -33,28 +33,28 @@ https://web.timeedit.se/chalmers_se/db1/timeedit/p/public/r.html?sid=3&h=t&p=0.d
 
 See table below for detail of contents.
 
-| Abbr | Contents                                                             |
-|------+----------------------------------------------------------------------|
-| Intr | Generalities                                                         |
-| IP 1 | Goto ↔ Loops, Pointers and passing by reference, Inlining procedures |
-| EX 1 | Exercises: marked with @1 in file:All.pdf                            |
-| IP 2 | Procedures → Gotos, Explicit stack                                   |
-| OO   | Inheritance, Interfaces, Notion of co/contra variance                |
-| EX 2 | Exercises:  marked with @2 in file:All.pdf                           |
-| FP 1 | Algebraic Types & Pattern matching                                   |
-| FP 2 | Higher-order functions & Currification                               |
-| EX 3 | Exercises marked with @3 in file:All.pdf                             |
-| FP 3 | Explicit state & Closures                                            |
-| EX 4 | Exercises marked with @4 in file:All.pdf                             |
-| FP 4 | Laziness & Explicit thunks                                           |
-| CP 1 | State-managing process                                               |
-| EX 5 | Exercises marked with @5 in file:All.pdf                             |
-| CP 2 | Explicit continuations                                               |
-| LP 1 | Unification                                                          |
-| EX 6 | Exercises marked with @6 in file:All.pdf                             |
-| LP 2 | Relations, Search as list of successes                               |
-| EX 7 | Exercises marked with @7 in file:All.pdf                             |
-| Q&A  | Questions and answers                                                |
+| Abbr | Contents                                                                            |
+|------+-------------------------------------------------------------------------------------|
+| Intr | Generalities                                                                        |
+| IP 1 | Goto ↔ Loops, Pointers and passing by reference, Inlining procedures                |
+| EX 1 | Exercises: marked with @1 in file:All.pdf                                           |
+| IP 2 | Procedures → Gotos, Explicit stack                                                  |
+| OO   | Inheritance, Interfaces, Notion of co/contra variance                               |
+| EX 2 | Exercises:  marked with @2 in file:All.pdf                                          |
+| FP 1 | Algebraic Types, Pattern matching, Parametric types, Currification & HO Abstraction |
+| FP 2 | HOF, HOT paradigms and Closures                                                     |
+| EX 3 | Exercises marked with @3 in file:All.pdf                                            |
+| FP 3 | Explicit state                                                                      |
+| EX 4 | Exercises marked with @4 in file:All.pdf                                            |
+| FP 4 | Laziness & Explicit thunks                                                          |
+| CP 1 | State-managing process                                                              |
+| EX 5 | Exercises marked with @5 in file:All.pdf                                            |
+| CP 2 | Explicit continuations                                                              |
+| LP 1 | Unification                                                                         |
+| EX 6 | Exercises marked with @6 in file:All.pdf                                            |
+| LP 2 | Relations, Search as list of successes                                              |
+| EX 7 | Exercises marked with @7 in file:All.pdf                                            |
+| Q&A  | Questions and answers                                                               |
 
 Note: the contents of each exercise session is about the topics
 covered in the two previous lectures. Remember to re-fetch the
@@ -71,7 +71,7 @@ file:All.pdf file each week: exercises may have been updated.
     SCHEDULED:  <2013-04-01 Mon 13:15>
     In room 5128
 ** Course evaluation
-CHEDULED:  <2013-02-05 Tue 09:50>
+SCHEDULED:  <2013-02-05 Tue 09:50>
 Representatives:
 
 - RAN XUXIN xuxin student.chalmers.se
@@ -80,6 +80,9 @@ Representatives:
 - OLSSON JONATHAN jonolss student.chalmers.se
 
 *** Evaluation Meeting 2
+
+Ran and Jonathan present; other two nowhere to be found.
+
 Items:
 **** Changes in the course since last year.
 ***** 2012
@@ -91,13 +94,21 @@ Items:
   paradigms, and explain new concepts by translation into known (old)
   concepts.
 ***** 2013
-- Different style of exercise sessions
+- Different style of exercise sessions (less interactive)
 - More course material produced
 **** Study climate
+- Good, maybe bad time for lectures in early morning
 **** Problematic course items; can resources be used better?
+- See below planned changes for next year.
+- Should know earlier which exercises are relevant.
 **** Course-specific questions in questionnaire; other material for final meeting?
+- No extra material
 *** Evaluation Meeting 3   
 
 * TODO Next year
 - Make one "admin" page; index just for announce and links.
-- Swap FP and OO
+- FP1: Algebraic Types, Pattern matching, Parametric types, Currification & HOF
+- FP2: Polymorphic functions Translating away HOF (Inlining, Closures)
+- FP3: Explicit state and laziness
+- Write the solution for all questions/exercises in the lecture notes
+- Publish the complete code for answers

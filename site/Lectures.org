@@ -769,16 +769,17 @@ Mechanisms to make the fields private
 
 *** Paradigm: Abstract Data Type (ADT) 
  - Example: "stack", "priority queue", ... from your data structures course
- - Every data type comes with a specification
+ - Every data type comes with a specification (a class invariant)
  - ... maybe in the form of _unit tests_
  - Notion of data-invariant:
      + a condition which the representation must verify at all times
      (seen form outside the object)
- - Advantage: it's easy to change representation of data
+ - Advantage: it is easy to change representation of data
+
+ - Dogma: never any direct field access (cf. "set" and "get")
 
  - Note: not every piece of data fits the ADT model. 
    Example: "Person" record.
- - Dogma: never any direct field access (cf. "set" and "get")
 
 *** Exercise
 Write a unit test for a valid date, and call it at appropriate points
@@ -791,7 +792,6 @@ counts the number of days since Jan 1st 2000.
 
 Simple example of inheritance:
 #+INCLUDE "Animals.cpp" src cpp
-
 
 *** Transformation: embed method pointers
 
@@ -823,7 +823,7 @@ This means that
 
 1. ~x~ has multiple types 
 
-2. That is Whenever a function ~f~ has an parameter of type ~A~, one
+2. That is whenever a function ~f~ has an parameter of type ~A~, one
    can pass an argument of type ~B~.  By deriving from ~A~, a lot of
    code is automatically ready to work with ~B~.  (Conversely, if you
    write code working for ~A~, it will be useful in many contexts)
@@ -856,7 +856,7 @@ Apply the transformation on the resulting code.
 *** What happens when functions have arguments?
 In many languages, the type of the arguments of derived functions must
 be the SAME as that of the overridden function.
-**** Contra-variance (⋆⋆)
+**** Co/Contra-variance (⋆⋆⋆)
 A perhaps natural expectation is that you could make the arguments
 change as the type of the object. Ex.:
 
@@ -869,12 +869,13 @@ change as the type of the object. Ex.:
 
 ... but in fact this violates the substitution principle!
 
-Exercise: use the above two classes in a way that shows violation of
+See also the [[http://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)][wikipedia article]].
+**** Exercise
+Use the above two classes in a way that shows violation of
 substitution.
 
-See also the [[http://en.wikipedia.org/wiki/Covariance_and_contravariance_(computer_science)][wikipedia article]].
 
-*** Extension (✪): function tables
+*** Extension (✪): method tables
 
 - Is the ~sound~ function pointer ever modified?
 - How can we save space if there are many methods per class? 
@@ -1019,8 +1020,6 @@ Translation of interfaces via method tables.
  encoded as state/environment + function. pointer.
 ** TODO Traits & Objects as fix-points (✪)
 * Functional programming
-** Reading (as necessary to understand Haskell syntax): "Learn you a Haskell, for great good!"
-http://learnyouahaskell.com/
 ** A bit of syntax
 *** Function definitions
 Similar to mathematical notation:
@@ -1036,7 +1035,6 @@ In the literature:
 : minimum = λ(x,y). if x < y 
 :                       then x
 :                       else y
-
 
 In Haskell:
 
@@ -1054,6 +1052,9 @@ In Haskell:
 
 :   a -> b -> c     ===       a -> (b -> c)
 
+*** Reading (as necessary to understand Haskell syntax)
+- The gentle introduction to Haskell
+- [[http://learnyouahaskell.com/][Learn you a Haskell, for great good!]]
 ** Algebraic Types
 Given a type ~A~ and a type ~B~, we can construct:
 
@@ -1151,6 +1152,10 @@ Some more laws, which all translate to isomorphisms:
 In Haskell syntax one must choose tags:
 
 : data Bool = True | False
+*** Count the number of values
+
+: Bool × Bool = (1 + 1) × (1 + 1)
+: Bool + Bool = (1 + 1) + (1 + 1) 
 
 *** Parametric types
     
@@ -1182,7 +1187,7 @@ Haskell syntax:
 
 Trees with any number of children:
 
-: RoseTree a = RT a (List a)
+: RoseTree a = RT a (List (RoseTree a))
 
 In fact there is a special syntax for lists in Haskell:
 
@@ -1219,12 +1224,12 @@ class Cons extends ListOfInt
   int head;
   ListOfInt tail;
   int sum () {
-    return head + tail.sum;
+    return head + tail.sum();
   }
 #+end_src
 **** Exercise
  Translate the append function.
-**** (⋆⋆⋆) Type-parametric version
+**** (✴) Type-parametric version
 Java has parametric classes, so a polymorphic list can even be encoded
 as follows. Review this code after <<Closures>> have been introduced.
 
@@ -1267,12 +1272,38 @@ the List interface.
 
 - In an OO language such as Java, it is convenient to add new cases to
   sum types, but it is cumbersome to add a new algorithm. (In the
-  above example, 'fold' is scattered among 3 classes/interfaces)
+  above example, ~sum~ is scattered among 3 classes/interfaces)
 - In a language such as Haskell, it is convenient to add a new
   algorithm (the fold function is localized at a single place), but
   cumbersome to add a case in a sum type (why?).
 
-** Higher-order functions
+** Function types
+~A → B~ corresponds to ~B^A~
+
+Indeed:
+
+- Bool → A ≅ A × A
+- (A+B) → C ≅ (A → C) × (B → C)
+- (A × B) → C ≅ A → (B → C)
+
+*** Transformation: Currification
+
+The last of these isomorphisms is (implicitly) used all the time in
+Haskell programming.
+
+#+begin_example
+currify : ((A × B) → C)  →   (A → (B → C))
+currify = \f -> \a -> \b -> f (a,b)
+
+uncurrify :: (A → (B → C)) → ((A × B) → C)
+uncurrify = \g -> \(a,b) -> (f a) b
+#+end_example
+
+Indeed, one almost always write ~A → B → C~ (which is equal to ~A → (B
+→ C)~ by associativity rules) for a function which takes two
+arguments, one of type ~A~ and one of type ~B~.
+
+** Higher-order functions in practice
 *** Example: fold (sometimes called reduce)
 
 Consider the following function, to sum the elements in a list:
@@ -1340,37 +1371,10 @@ Backus, 1977 Turing Award Lecture
 http://www.thocp.net/biographies/papers/backus_turingaward_lecture.pdf
 (recommended to read up to p. 620).
 
-** Some more algebra
-~A → B~ corresponds to ~B^A~
-
-Indeed:
-
-- Bool → A ≅ A × A
-- (A+B) → C ≅ (A → C) × (B → C)
-- (A × B) → C ≅ A → (B → C)
-
-*** Transformation: Currification
-
-The last of these isomorphisms is (implicitly) used all the time in
-Haskell programming.
-
-#+begin_example
-currify : ((A × B) → C)  →   (A → (B → C))
-currify = \f -> \a -> \b -> f (a,b)
-
-uncurrify :: (A → (B → C)) → ((A × B) → C)
-uncurrify = \g -> \(a,b) -> f a b
-#+end_example
-
-Indeed, one almost always write ~A → B → C~ (which is equal to ~A → (B
-→ C)~ by associativity rules) for a function which takes two
-arguments, one of type ~A~ and one of type ~B~.
-
 ** Removing Higher-Order functions
+Remark that 1st order Haskell programs are easy to translate to C.
+
 *** Transformation: Inlining higher-order functions
-
-Example/Exercise: from "filter/map" to for loop...
-
 This transformation is essentially the inverse of abstraction.
 
 #+begin_src haskell
@@ -1382,8 +1386,8 @@ map f xs = case xs of
 multiply n xs = map (\x -> x * n) xs
 #+end_src
 
-Substitute the formal parameter 'f' by its argument '(\x -> x * n)' in
-the code of 'map' (this is called β-reduction):
+Substitute the formal parameter ~f~ by its argument ~(\x -> x * n)~ in
+the code of ~map~.
 
 #+begin_src haskell
 multiply n xs = case xs of
@@ -1391,7 +1395,7 @@ multiply n xs = case xs of
     (x:xs) -> (\x -> x * n) x : map (\x -> x * n) xs
 #+end_src
 
-But we know that multiply n xs == map (\x -> x * n) xs
+But we know that ~multiply n xs == map (\x -> x * n) xs~
 
 #+begin_src haskell
 multiply n xs = case xs of
@@ -1399,7 +1403,7 @@ multiply n xs = case xs of
     (x:xs) -> (\x -> x * n) x : multiply n xs
 #+end_src
 
-β-reduce again:
+Reduce again:
 
 #+begin_src haskell
 multiply n xs = case xs of
@@ -1459,40 +1463,11 @@ lambda-abstraction. Do not be confused: remember the above definition.
 **** Exercise (⋆⋆): Implement the above example C. 
 Hint: Instead of a 'tag', use a function pointer.
 
-Here's "pseudo-c" draft to get you started:
+Solution: 
 
-#+begin_src pseudo-c
-list map(closure* c, list p) {
-   while (p /= null) {
-     apply(c,p.info); 
-     // Attn: to be faithful to the Haskell code we'd need to create a new list.
-   }
-}
-
-struct {
-  int *f();
-  byte[] env;
-} closure
-
-
-int apply(closure* c, args...) {
-  c.f(c.env,args);
-}
-
-
-int add4(byte* env, int x) {
-  return x+4;
-}
-
-// call0
-add4Closure = new (void*); // we only need space for a function pointer, because add4 has no environment.
-add4Closure.f = add4;
-map(add4Closure,xs);
-
-#+end_src
+#+INCLUDE "closure.cpp" src cpp
 
 Note the similarity with the implementation of [[objects]]!
-
 **** Exercise: Implement the above example Java
 Hints
  - Instead of a tag, make a derived class ('apply' is a method)
@@ -1547,7 +1522,7 @@ button.onPress(new MyPrintAction("Hello there"));
 Hence: "Objects are Poor Man's closures."
 
 **** Exercise: polymorphic closures
-In the above we had closures of type Int -> Int. How would you support
+In the above we had closures of type ~Int -> Int~. How would you support
 polymorphic closures?
 
 ** Transformation: Explicit State

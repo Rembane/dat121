@@ -5,6 +5,7 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
+- <2013-02-05 Tue> Uploaded video on [[file:Closure.mov][explicit closures]].
 - <2013-01-31 Thu> Because of lack of attendance, the Thursday morning
   session is CANCELLED from now on.
 - <2013-01-31 Thu> Answers for week 2 questions for week 3 [[file:All.pdf][ready]].
