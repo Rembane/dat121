@@ -2,7 +2,6 @@
 #+EMAIL: bernardy@chalmers.se
 #+STYLE: <link rel="stylesheet" type="text/css" href="pp.css" />
 
-* How to read this document
 This document is generated form an org-mode file. 
    - To access it replace .html by .org in the above link
    - It can be read in plain text: header level is indicated by number of *

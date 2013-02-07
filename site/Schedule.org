@@ -21,15 +21,17 @@ https://web.timeedit.se/chalmers_se/db1/timeedit/p/public/r.html?sid=3&h=t&p=0.d
 
 * <<Timetable>>
 
-| Week | Starts | Lecture 1 | Lecture 2  | Exercises |
-|------+--------+-----------+------------+-----------|
-|    1 |   0121 | Intr      | IP 1       | EX 1      |
-|    2 |   0128 | IP 2      | OO         | EX 2      |
-|    3 |   0204 | FP 1      | FP 2       | EX 3      |
-|    4 |   0211 | FP 3      | No lecture | EX 4      |
-|    5 |   0218 | FP 4      | CP 1       | EX 5      |
-|    6 |   0225 | CP 2      | LP 1       | EX 6      |
-|    7 |   0304 | LP 2      | Q&A        | EX 7      |
+| Week | Starts | Lecture 1 | Lecture 2      | Exercises |
+|------+--------+-----------+----------------+-----------|
+|    1 |   0121 | Intr      | IP 1           | EX 1      |
+|    2 |   0128 | IP 2      | OO             | EX 2      |
+|    3 |   0204 | FP 1      | FP 2           | EX 3      |
+|    4 |   0211 | FP 3      | No lecture (*) | EX 4      |
+|    5 |   0218 | FP 4      | CP 1           | EX 5      |
+|    6 |   0225 | CP 2      | LP 1           | EX 6      |
+|    7 |   0304 | LP 2      | Q&A            | EX 7      |
+
+  (*): On Tue Feb 12, EX 3 will be held instead. See announcements.
 
 See table below for detail of contents.
 
@@ -103,7 +105,6 @@ Items:
 - Should know earlier which exercises are relevant.
 **** Course-specific questions in questionnaire; other material for final meeting?
 - No extra material
-*** Evaluation Meeting 3   
 
 * TODO Next year
 - Make one "admin" page; index just for announce and links.

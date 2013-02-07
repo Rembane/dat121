@@ -5,6 +5,10 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
+- <2013-02-07 Thu> Due to miscommunication, the exercise session EX 3
+  was not given on Tuesday Feb 5 at 13:15. It will be given again on
+  Tuesday Feb 12 at 8:00 instead for those who have missed it. Sorry
+  for the inconvenience.
 - <2013-02-05 Tue> Uploaded video on [[file:Closure.mov][explicit closures]].
 - <2013-01-31 Thu> Because of lack of attendance, the Thursday morning
   session is CANCELLED from now on.
@@ -35,7 +39,7 @@ Looking for [[file:Lectures.org][the lecture notes]]?
 *** Schedule
 See [[file:Schedule.org][here]].
 *** Formal requirements
-- Pass the exam 
+- Pass the exam
 - That's it!
 *** Informal requirements and learning aids
 - Do the exercises
@@ -64,7 +68,7 @@ See [[file:Schedule.org][here]].
 *** Reading material
 + Unfortunately, I do not know of a single textbook covering all the
   material in a suitable way. Therefore, [[file:Lectures.org][the lecture notes]] are the "master"
-  source for the course. 
+  source for the course.
 + The exercises [[file:All.pdf][(pdf)]] are also part of the course material.
 + Single most relevant textbook: probably
 
@@ -72,7 +76,7 @@ See [[file:Schedule.org][here]].
 
   http://www.plai.org/
 #  http://www.cs.brown.edu/~sk/Publications/Books/ProgLangs/2007-04-26/
- 
+
   + but
     * uses different structure
     * uses scheme (LISP) syntax
@@ -80,9 +84,9 @@ See [[file:Schedule.org][here]].
 
   + Relevant parts
     * Part I (To understand the point of view of the author)
-    * Shreds of part II 
+    * Shreds of part II
     * Parts III, IV, VI, VII
-    * Part X (Ch. 24, 25) 
+    * Part X (Ch. 24, 25)
     * Part XI
 
 + Other relevant books
