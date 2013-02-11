@@ -1541,13 +1541,11 @@ In the above we had closures of type ~Int → Int~. How would you
 support polymorphic closures?
 
 ** Purity and its Consequences
-
 Did you know that side effects...
  - are a common source of bugs?
  - make testing difficult?
  - make reasoning difficult?
  - make parallelizing difficult?
- - cause cancer?
 
 *** Referential transparency
 
@@ -1609,6 +1607,80 @@ Examples:
 
 *** Sharing is ALWAYS safe! (see below)
 *** Possible to use laziness  (see below)
+*** Copying and sharing
+
+Consider a binary tree:
+
+#+begin_src haskell
+data Tree = Leaf
+          | Bin Tree Int Tree
+
+tree = Bin 10 
+         (Bin 5 
+            (Bin 2 Leaf Leaf)
+            (Bin 7 Leaf Leaf)) 
+         (Bin 20 
+            (Bin 12 Leaf Leaf)
+            (Bin 22 Leaf Leaf))
+#+end_src
+
+#+begin_src dot :file tree-orig.svg :cmdline -Kdot -Tsvg :exports results
+digraph G {
+  10 -> 5 -> 2; 
+        5 -> 7;
+  10 -> 20 -> 12;
+        20 -> 22;
+}
+#+end_src
+
+#+RESULTS:
+[[file:tree-orig.svg]]
+
+And say we insert 13 in it using the function: 
+
+#+begin_src haskell
+insert x Leaf = Bin Leaf x Leaf
+insert x (Bin l y r) | x < y = Bin (insert x l) y r
+                     | x >= y = Bin l y (insert y r)
+
+tree2 = insert 13 tree
+#+end_src
+
+
+The new tree /shares/ most of its contents
+with the old one:
+
+#+begin_src dot :file tree-modif.svg :cmdline -Kdot -Tsvg :exports results
+digraph G {
+  10 -> 5 -> 2; 
+        5 -> 7;
+  10 -> 20 -> 12;
+        20 -> 22;
+node [color=red];
+edge [color=red];
+
+new10 [label="10"];
+new20 [label="20"];
+new12 [label="12"];
+new13 [label="13"];
+
+new10 -> 5;
+new10 -> new20;
+new20 -> new12;
+new20 -> 22;
+new12 -> new13;
+  
+}
+#+end_src
+
+#+RESULTS:
+[[file:tree-modif.svg]]
+
+**** Question
+Which nodes will be considered as garbage during the next collection,
+assuming that the reference to the old tree is dropped?
+**** Answer
+black nodes: 10, 20, 12
 *** John Carmack on Purity:
 
 http://www.altdevblogaday.com/2012/04/26/functional-programming-in-c/
@@ -1732,81 +1804,8 @@ use a year later, balance the convenience factor against the
 difficulties you will inevitably suffer later.  Most developers are
 not very good at predicting the future time integrated suffering their
 changes will result in.
-
-** Copying and sharing
-
-Consider a binary tree:
-
-#+begin_src haskell
-data Tree = Leaf
-          | Bin Tree Int Tree
-
-tree = Bin 10 
-         (Bin 5 
-            (Bin 2 Leaf Leaf)
-            (Bin 7 Leaf Leaf)) 
-         (Bin 20 
-            (Bin 12 Leaf Leaf)
-            (Bin 22 Leaf Leaf))
-#+end_src
-
-#+begin_src dot :file tree-orig.svg :cmdline -Kdot -Tsvg :exports results
-digraph G {
-  10 -> 5 -> 2; 
-        5 -> 7;
-  10 -> 20 -> 12;
-        20 -> 22;
-}
-#+end_src
-
-#+RESULTS:
-[[file:tree-orig.svg]]
-
-And say we insert 13 in it using the function: 
-
-#+begin_src haskell
-insert x Leaf = Bin Leaf x Leaf
-insert x (Bin l y r) | x < y = Bin (insert x l) y r
-                     | x >= y = Bin l y (insert y r)
-
-tree2 = insert 13 tree
-#+end_src
-
-
-The new tree /shares/ most of its contents
-with the old one:
-
-#+begin_src dot :file tree-modif.svg :cmdline -Kdot -Tsvg :exports results
-digraph G {
-  10 -> 5 -> 2; 
-        5 -> 7;
-  10 -> 20 -> 12;
-        20 -> 22;
-node [color=red];
-edge [color=red];
-
-new10 [label="10"];
-new20 [label="20"];
-new12 [label="12"];
-new13 [label="13"];
-
-new10 -> 5;
-new10 -> new20;
-new20 -> new12;
-new20 -> 22;
-new12 -> new13;
-  
-}
-#+end_src
-
-#+RESULTS:
-[[file:tree-modif.svg]]
-
-*** Question
-Which nodes will be considered as garbage during the next collection,
-assuming that the reference to the old tree is dropped?
-*** Answer
-black nodes: 10, 20, 12
+*** TODO Downsides of purity
+- Can be difficult to engineer efficient algorithms
 ** Transformation: Explicit State
 
 - How can we represent imperative programs without using side effects?
@@ -1911,42 +1910,53 @@ safePrint line =
 #+end_src
 
 ** Laziness
-*** Question: How much memory is used by map?
+*** Example
 Assuming
 
-- l : List Int
-- length l = n
+: l : List Int
+: length l = n
 
-How much memory is consumed by:
+How much memory is used by ~map~ in the following example?
 
-    : map (+1) l
+    : l2 = map (+1) l
 
-**** Same question, but assume that only the 1st element of the new list is used in the rest of the program
+*** Answer
 
-**** Same question, but assume 'l' is no longer used in the rest of the program.
+It depends if ~map~ is strict or lazy.
+
+If ~map~ is strict, then it consumes ~O(n)~ memory.
+If ~map~ is lazy, then it depends how much and how ~l2~ is used in the rest of the program.
+
+- If only the first element is used, then the rest of the list is not
+  even constructed and only ~O(1)~ memory is used
+- If the whole list is used, but it is consumed at the same time
+  (eg. if we take its sum), then only ~O(1)~ memory is used
+- If the whole list is used and kept, then it consumes ~O(n)~
+  memory... but we cannot say /when/ the memory is consumed without
+  knowing the usage pattern.
+
 
 ⟶ Some say: "in Haskell, lists are a _control structure_".
 
-** Paradigm: composition of transformations
+*** Paradigm: composition of transformations
 
 - When writing a search function, the programmer can ALWAYS (and ONLY)
   return a list of ALL possible results (instead of "the first one").
 - Programs can be understood as "stream processors"
-- Dogma: no side effect (eg. no global state)
 
-** Paradigm: generate and prune
+*** Paradigm: generate and prune
 - Generate infinite/large data structure
 - Only visit relevant parts 
 - Examples: game tree, processes
-*** Trivia: what is the most used lazy language?
+**** Trivia: what is the most used lazy language?
 - Probably SQL!
 - But remember also unix-shell pipes:
   
    cat /etc/password | grep 'group=admin' | head 
 
-*** Read: _Why functional programming matters_, J. Hughes.
+**** Read: _Why functional programming matters_, J. Hughes.
 
-** Transformation: explicit thunks
+**** Transformation: explicit thunks
 
 First, let us define a spine-strict list.  One can have strict
 structures in Haskell, by annotating constructors with an exclamation
@@ -1969,7 +1979,11 @@ Subnote: this crucially relies on the absence of side-effects.
 - First introduce explicit thunks,
 - Then transform them into closures!
 
-** What if we have side effects+laziness?
+*** Evil combination: side effects+laziness
+The combination of side effects and laziness is practically
+intractable. Because of laziness code is evaluated at impredicatble
+points, and thus it is very difficult to figure out when side effects
+occur or not.
 * Concurrent programming
 ** Disclaimer: Concurrent programming ≠ Parallel programming
 Parallel programming = expose (lack of) dependencies between parts of
