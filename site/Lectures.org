@@ -1615,13 +1615,16 @@ Consider a binary tree:
 data Tree = Leaf
           | Bin Tree Int Tree
 
-tree = Bin 10 
-         (Bin 5 
-            (Bin 2 Leaf Leaf)
-            (Bin 7 Leaf Leaf)) 
-         (Bin 20 
-            (Bin 12 Leaf Leaf)
-            (Bin 22 Leaf Leaf))
+tree = Bin  
+         (Bin  
+            (Bin Leaf 2  Leaf)
+            5                
+            (Bin Leaf 7  Leaf)) 
+         10                  
+         (Bin                
+            (Bin Leaf 12 Leaf)
+            20               
+            (Bin Leaf 22 Leaf))
 #+end_src
 
 #+begin_src dot :file tree-orig.svg :cmdline -Kdot -Tsvg :exports results
@@ -1955,8 +1958,7 @@ If ~map~ is lazy, then it depends how much and how ~l2~ is used in the rest of t
    cat /etc/password | grep 'group=admin' | head 
 
 **** Read: _Why functional programming matters_, J. Hughes.
-
-**** Transformation: explicit thunks
+*** Transformation: explicit thunks
 
 First, let us define a spine-strict list.  One can have strict
 structures in Haskell, by annotating constructors with an exclamation
@@ -1966,18 +1968,29 @@ mark.  For [[file:Strict.hs][example]]:
 It's possible to recover laziness by introduction of /explicit thunks/:
 #+INCLUDE "Lazy.hs" src haskell
 
-*** Note: laziness as implemented in Haskell is more efficient than explicit thunks as presented above. Why?
-Because Haskell guarantees that a given thunk is never evaluated more
+*** Question: What if we want to encode laziness in an imperative language?
+- First introduce explicit thunks,
+- Then transform them into closures!
+
+*** Memoisation and lazy dynamic programming
+
+Laziness as implemented in Haskell is more efficient than explicit
+thunks as presented above!
+
+Indeed, Haskell guarantees that a given thunk is never evaluated more
 than once: after computation the thunk is overwritten by the
 value. (As opposed to re-evaluate it every time its value is needed).
 If you need to evaluate thunks many times, it's a good idea to have
 explicit memoization.
 
-Subnote: this crucially relies on the absence of side-effects.
 
-*** Question: What if we want to encode laziness in an imperative language?
-- First introduce explicit thunks,
-- Then transform them into closures!
+Example: computation of fibonacci numbers:
+
+#+INCLUDE "FibMemo.hs" src haskell
+
+The efficiency of the above example relies not only on laziness, but
+also on /memoisation/. That is, by using the array as an intermediate
+data structure, each intermediate result is computed only once.
 
 *** Evil combination: side effects+laziness
 The combination of side effects and laziness is practically
