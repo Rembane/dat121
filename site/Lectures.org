@@ -1808,7 +1808,7 @@ difficulties you will inevitably suffer later.  Most developers are
 not very good at predicting the future time integrated suffering their
 changes will result in.
 *** TODO Downsides of purity
-- Can be difficult to engineer efficient algorithms
+- Can be difficult to engineer efficient pure algorithms
 ** Transformation: Explicit State
 
 - How can we represent imperative programs without using side effects?
@@ -1913,7 +1913,7 @@ safePrint line =
 #+end_src
 
 ** Laziness
-*** Example
+*** Example: map
 Assuming
 
 : l : List Int
@@ -1941,15 +1941,12 @@ If ~map~ is lazy, then it depends how much and how ~l2~ is used in the rest of t
 
 ⟶ Some say: "in Haskell, lists are a _control structure_".
 
-*** Paradigm: composition of transformations
-
-- When writing a search function, the programmer can ALWAYS (and ONLY)
-  return a list of ALL possible results (instead of "the first one").
-- Programs can be understood as "stream processors"
-
 *** Paradigm: generate and prune
 - Generate infinite/large data structure
-- Only visit relevant parts 
+- Only visit relevant parts/prune out irrelevant ones 
+  + Note that the pruned object may still be infinite
+- When writing a search function, the programmer can ALWAYS (and ONLY)
+  return a list of ALL possible results (instead of "the first one").
 - Examples: game tree, processes
 **** Trivia: what is the most used lazy language?
 - Probably SQL!
@@ -1957,7 +1954,11 @@ If ~map~ is lazy, then it depends how much and how ~l2~ is used in the rest of t
   
    cat /etc/password | grep 'group=admin' | head 
 
-**** Read: _Why functional programming matters_, J. Hughes.
+*** Example: Newton-Raphson Square Roots
+#+INCLUDE "Roots.hs" src haskell
+(This exmaple and the following are taken from _Why functional
+programming matters_ by J. Hughes.)
+*** TODO Example: Game tree
 *** Transformation: explicit thunks
 
 First, let us define a spine-strict list.  One can have strict
@@ -2019,10 +2020,9 @@ Things communicate with messages
 Things fail                                      ⟵ the part we will not discuss in this course
 #+end_quote
   — Joe Armstrong 
-       (After his 7th victory in Tour de France)
 ** Process
 A process is an independent thread of computation. In Haskell, we can
-create new processes using Control.Concurrent.forkIO.
+create new processes using ~Control.Concurrent.forkIO~.
 
 For [[file:Process.hs][example]]:
 #+INCLUDE "Process.hs" src haskell
@@ -2031,17 +2031,20 @@ For [[file:Process.hs][example]]:
 - Run the above example
 - What is the output?
 ** Shared state (aka Concurrent + Imperative)
-http://hackage.haskell.org/packages/archive/base/4.4.1.0/doc/html/Data-IORef.html
 
-- Data.IORef newIORef 
+How should processes communicate? First idea: via a shared memory. For this we can use Haskell's [[http://hackage.haskell.org/packages/archive/base/4.4.1.0/doc/html/Data-IORef.html][IO Refs]].
 
-Big danger of "screwing up":
+: Data.IORef.newIORef 
+
+Big danger of "screwing up"! 
 
 : x = 0
 : x = x + 1   //   x = x + 1
 : x ???
 
-- more realistic example: two insertions in a balanced tree
+#INCLUDE "ConcurrentIORef.hs" src haskell
+
+- more realistic example: concurrent insertions in a balanced tree
 - In general: access to a shared resource must be controlled.
 
 - How not to screw up?
@@ -2059,45 +2062,66 @@ Big danger of "screwing up":
 
 ** Channels
 A channel is a medium for communication between processes. In Haskell,
-channels can be created with the newChan function. (Note that the
+channels can be created with the ~newChan~ function. (Note that the
 channel is polymorphic, you may need to force the type to that you
 need.)  For [[file:Channel.hs][example]], in the following snippet, two processes
-communicate via a channel (c).
+communicate via a channel (~c~).
 #+INCLUDE "Channel.hs" src haskell
 
-*** Exercise:
+*** Exercise
 Execute each line of the main function in ghci, and try to guess what
 will happen.
 
-** Idea (Concurrent + Functional)
-One approach not to screw up:
+** Paradigm: Concurrent + Functional
+A possible approach not to screw up:
 - NO shared state!
 - communication only happens via messages over channels.
 - In general: a shared resource is managed by a single process
-- Approach of CSP, π-calculus, Erlang
-- The approach we'll describe here... using "Concurrent Haskell"
+- Approach of [[http://en.wikipedia.org/wiki/Communicating_sequential_processes][CSP]], [[http://en.wikipedia.org/wiki/%CE%A0-calculus][π-calculus]], Erlang
+- The approach we will describe here, using "Concurrent Haskell" syntax.
 
-** Transformation: variable-managing process
+For example, the ordered binary tree we discussed before would be
+managed by a single process accepting (say) "insert" and "query"
+messages.
+
+** Understanding the tradeoffs
 
 Reading/Writing to a channel is a harmless kind of side effect... Or is it?
 + Yes!
-  - Nothing is "overwritten" (see x=x+1 // x=x+1 example above)
+  - Nothing is "overwritten" (see ~x=x+1 // x=x+1~ example above)
   - in particular the integrity of data structures in never
     compromised.
 + No!
-  - Referential transparency is broken
-  - reading from a channel is not a proper function
+  - Referential transparency is broken (cannot replace 2 read by 1 read of the same channel)
+  - Even reading from a channel is not a proper function
+  - The integrity of a single process is guaranteed, but if there is a
+    an invariant involving multiple processes it may still be tricky
+    to maintain it.
 
+*** Example
+Assume two discrete resources (ie. tape reader 1, tape reader
+2). Further assume that each tape reader is managed by a separate
+process (server), with a standard protocol "open", "read", "write", "close". 
+
+Assume now two client processes with code:
+
+:  do tape1 <- getTapeServer
+:     tape2 <- getTapeServer
+:     tape1 "open"
+:     tape2 "open"
+:     ... copy between tapes
+:     tape1 "close"
+:     tape2 "close"
+
+It may happen that each tape is allocated to either client, and each
+of them will wait forever for the other to yield.
+
+*** Example
 In fact, one can simulate an updatable variable using channels and
-processes. 
-
-See
-file:SimpleVariableManager.hs
-for a simple example.
-
-Or this one for an "serious" version.
-file:CSPVariable.hs
+processes. Here is how to do it:
 #+INCLUDE "CSPVariable.hs" src haskell
+This clearly shows that, /if they are used indiscriminately/, channels
+are no safer than shared memory.
 
 *** Exercises
 - Use newVariable, set and get in the ghci prompt.
@@ -2108,7 +2132,7 @@ file:CSPVariable.hs
   create a channel? (⋆⋆)
 
 ** Some erlang peculiarities
-- Syntax (inspired by prolog!?)
+- Syntax (inspired by prolog?!)
 - Dynamic typing
 - Hot-code swapping
 - Things can fail!
@@ -2121,6 +2145,8 @@ file:CSPVariable.hs
 
 server: accepts arguments to the function + channel where to post the reply.
 gotcha: laziness!
+
+*** TODO answer
 
 ** Transformation: explicit continuations
 
