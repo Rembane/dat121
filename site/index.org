@@ -6,6 +6,9 @@ Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
 
+- <2013-02-18 Mon> Uploaded video on [[file:Thunks.mov][explicit thunks]].
+- <2013-02-12 Tue> Answers for week 3 and questions for week 4
+  [[file:All.pdf][ready]]. An [[file:exam201203.pdf][example exam]] is available.
 - <2013-02-12 Tue> Answers for week 3 and questions for week 4
   [[file:All.pdf][ready]]. An [[file:exam201203.pdf][example exam]] is available.
 - <2013-02-07 Thu> Due to miscommunication, the exercise session EX 3

@@ -4,7 +4,8 @@
 
 This document is generated form an org-mode file. 
    - To access it replace .html by .org in the above link
-   - It can be read in plain text: header level is indicated by number of *
+   - It can be read in plain text: header level is indicated by number
+     of *
    - Or more conveniently by using Emacs [[http://orgmode.org/][org mode]]. 
      + Use <TAB> to expand/collapse nodes. 
      + C-c C-e b to do HTML rendering and open in your browser
@@ -1916,8 +1917,8 @@ safePrint line =
 *** Example: map
 Assuming
 
-: l : List Int
-: length l = n
+:  l : List Int
+:  length l = n
 
 How much memory is used by ~map~ in the following example?
 
@@ -1969,7 +1970,8 @@ mark.  For [[file:Strict.hs][example]]:
 It's possible to recover laziness by introduction of /explicit thunks/:
 #+INCLUDE "Lazy.hs" src haskell
 
-*** Question: What if we want to encode laziness in an imperative language?
+*** Lazy to imperative
+What if we want to encode laziness in an imperative language?
 - First introduce explicit thunks,
 - Then transform them into closures!
 
@@ -1993,11 +1995,14 @@ The efficiency of the above example relies not only on laziness, but
 also on /memoisation/. That is, by using the array as an intermediate
 data structure, each intermediate result is computed only once.
 
-*** Evil combination: side effects+laziness
+*** Evil combination of features
 The combination of side effects and laziness is practically
 intractable. Because of laziness code is evaluated at impredicatble
 points, and thus it is very difficult to figure out when side effects
 occur or not.
+
+My advice: be /very cautious/ when using side effects and lazy
+evaluation together.
 * Concurrent programming
 ** Disclaimer: Concurrent programming ≠ Parallel programming
 Parallel programming = expose (lack of) dependencies between parts of
@@ -2009,6 +2014,8 @@ independent lives (dependencies might come, but "after the fact").
 In summary:
 - parallelism: about /speed/.
 - concurrency: distribution, redundancy, etc.
+
+In this course we will focus on concurrency.
 ** Motivation: the world is concurrent
 #+begin_quote
 The world is concurrent
