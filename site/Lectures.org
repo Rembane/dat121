@@ -1987,13 +1987,19 @@ If you need to evaluate thunks many times, it's a good idea to have
 explicit memoization.
 
 
-Example: computation of fibonacci numbers:
+**** Example: computation of fibonacci numbers
 
 #+INCLUDE "FibMemo.hs" src haskell
 
+It takes some time to allocate the array. Then computing fib!50 is
+instant. Then computing fib!100000 takes a bit of time. (Compare this
+performance with the naive double recursion scheme.)
+
 The efficiency of the above example relies not only on laziness, but
 also on /memoisation/. That is, by using the array as an intermediate
-data structure, each intermediate result is computed only once.
+data structure, each intermediate result is computed only once. This
+is realised in the implementation by updating the thunk with its value
+once it is forced.
 
 *** Evil combination of features
 The combination of side effects and laziness is practically
@@ -2002,7 +2008,7 @@ points, and thus it is very difficult to figure out when side effects
 occur or not.
 
 My advice: be /very cautious/ when using side effects and lazy
-evaluation together.
+evaluation together. In Haskell, beware ~unsafePerformIO~!
 * Concurrent programming
 ** Disclaimer: Concurrent programming ≠ Parallel programming
 Parallel programming = expose (lack of) dependencies between parts of
@@ -2019,12 +2025,10 @@ In this course we will focus on concurrency.
 ** Motivation: the world is concurrent
 #+begin_quote
 The world is concurrent
-
 Things in the world don't share data
-
 Things communicate with messages
-
-Things fail                                      ⟵ the part we will not discuss in this course
+Things fail                
+            ⟵ the part we will not discuss in this course
 #+end_quote
   — Joe Armstrong 
 ** Process
@@ -2058,7 +2062,7 @@ Big danger of "screwing up"!
   - Semaphores
   - Locks
   - Critical sections
-  - Synchronized classes
+  - Synchronized classes (monitors)
   - ...
 
 - ... but these solutions come with problems of their own:
@@ -2123,6 +2127,8 @@ Assume now two client processes with code:
 It may happen that each tape is allocated to either client, and each
 of them will wait forever for the other to yield.
 
+Solution: have a single processes that manages copies of tapes.
+
 *** Example
 In fact, one can simulate an updatable variable using channels and
 processes. Here is how to do it:
@@ -2131,10 +2137,10 @@ This clearly shows that, /if they are used indiscriminately/, channels
 are no safer than shared memory.
 
 *** Exercises
-- Use newVariable, set and get in the ghci prompt.
+- Use ~newVariable~, set and get in the ghci prompt.
 - How many processes are running?
 - Transform the handler function to do a sum instead of overwriting
-  when 'set' is called.
+  when ~set~ is called.
 - Can you change the program so that the get command does not need to
   create a channel? (⋆⋆)
 
@@ -2149,13 +2155,15 @@ are no safer than shared memory.
   - but strict.
 - Processes have a single "mailbox" instead of multiple channels
 ** Exercise: remote procedure call.
+Write a server which accepts arguments to the function + channel where
+to post the reply.
 
-server: accepts arguments to the function + channel where to post the reply.
-gotcha: laziness!
+*** Answer
+#INCLUDE "GenericServer.hs" src haskell
+Attention: as it is the server will only create a thunk to the
+computation; only the client will force it!
 
-*** TODO answer
-
-** Transformation: explicit continuations
+** Concurrency via Continuations
 
 Possible meaning for Concurrent Programming: processes are executed in
 an interleaved fashion. A process can be "put on hold" at some point,
@@ -2167,20 +2175,63 @@ it.
 
 *** What is a continuation?
 A continuation is simply the part of the program /execution/ that will
-take place after some given point.
+take place after some given point. That is, a continuation can be
+represented by the point in the program to start execution plus the
+the values of variables to use.
+
+In Haskell, one can simply use a function to represent a continuation
+(the variables used in the function will automatically be saved by the
+language --- remember the representation of functions as closures).
+
+*** Transformation: explicit continuations
+
+In any program, one can make the flow of control manifest by
+explicitly passing continuations to every function. Each function will
+take an extra argument (the continuation). Instead of returning a
+result directly, the result is passed to the continuation. 
+
+The first step in this transformation is to decide an order of
+execution (which is already done if, for example, the code executes in
+~IO~ or is in imperative style). Hence we will work on code which uses
+the ~do~ notation.
+
+The transformation can then be summarized as follows.
+
+| Object kind | Source           | Target              |
+|-------------+------------------+---------------------|
+| Type        | ~IO a~           | ~(a → cont) → cont~ |
+| Result      | ~return result~  | ~k result~          |
+| Sequence    | ~do x <- f;g(x)~ | ~\k -> f (g k)~     |
+
+
 *** Example
 Let us write a trivial server:
 #+INCLUDE "Server.hs" src haskell
 Same with explicit continuations:
 #+INCLUDE "ServerWithContinuations.hs" src haskell
 
-*** Exercise
+We can now also explain how a scheduler might work:
+#+INCLUDE "RuntimeSystem.hs" src haskell
+
+
+*** Exercises
 - How many processes are created in the 1st version of the server?
 - How many are created in the transformed version?
 - What are the trade-offs of the transformation?
-- (⋆⋆⋆) make continuations explicit closures
-- (⋆⋆⋆) Could you write the above server in C? How would you go about
+- Make continuations explicit closures
+- Could you write the above server in C? How would you go about
   it?
+
+*** Remark
+Note that this sort of transformation to explicit continuations is
+often performed "in the wild". Indeed, this is useful when the right
+paradigm is concurrency, but the OS-level processes (or threads) are
+too costly to use. 
+
+For example, in a web server, it is convenient to have a process for
+each client, but there are often very many clients, and hence OS
+processes are too costly. (Older example: ATM.)
+
 ** Closing
 There are more models for concurrency than channels + processes
 (eg. revisions)

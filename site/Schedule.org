@@ -49,7 +49,7 @@ See table below for detail of contents.
 | FP 3 | Explicit state and purity                                                           |
 | EX 4 | Exercises marked with @4 in file:All.pdf                                            |
 | FP 4 | Laziness & Explicit thunks                                                          |
-| CP 1 | State-managing process                                                              |
+| CP 1 | Resource-managing processes                                                         |
 | EX 5 | Exercises marked with @5 in file:All.pdf                                            |
 | CP 2 | Explicit continuations                                                              |
 | LP 1 | Unification                                                                         |
