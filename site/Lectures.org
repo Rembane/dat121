@@ -2186,9 +2186,11 @@ language --- remember the representation of functions as closures).
 *** Transformation: explicit continuations
 
 In any program, one can make the flow of control manifest by
-explicitly passing continuations to every function. Each function will
-take an extra argument (the continuation). Instead of returning a
-result directly, the result is passed to the continuation. 
+explicitly passing continuations to every function (this is not
+specific to concurrent programming --- it works for any
+paradigm). Each function will take an extra argument (the
+continuation). Instead of returning a result directly, the result is
+passed to the continuation.
 
 The first step in this transformation is to decide an order of
 execution (which is already done if, for example, the code executes in
@@ -2200,9 +2202,8 @@ The transformation can then be summarized as follows.
 | Object kind | Source           | Target              |
 |-------------+------------------+---------------------|
 | Type        | ~IO a~           | ~(a → cont) → cont~ |
-| Result      | ~return result~  | ~k result~          |
-| Sequence    | ~do x <- f;g(x)~ | ~\k -> f (g k)~     |
-
+| Result      | ~return result~  | ~\k -> k result~    |
+| Sequence    | ~do x <- f; g x~ | ~\k -> f (g k)~     |
 
 *** Example
 Let us write a trivial server:
@@ -2212,7 +2213,6 @@ Same with explicit continuations:
 
 We can now also explain how a scheduler might work:
 #+INCLUDE "RuntimeSystem.hs" src haskell
-
 
 *** Exercises
 - How many processes are created in the 1st version of the server?
@@ -2237,101 +2237,94 @@ There are more models for concurrency than channels + processes
 (eg. revisions)
 
 * Logic programming
-** Logic: a crash course (✪)
-*** Question: what is *a logic*?
+** Notion: Proposition
+A /proposition/ is a statement. It can be a statement made about
+people, the world, etc. but also about mathematical and computational
+entities. The statement can be true, false, or undecided. Examples:
 
-  (Sound) rules of reasoning
-
-*** Notion: Proposition:
-- A statement (can be true or false).
-
-(A proposition that can be proved is called a theorem.)
-
-**** Closed propositions:
 - "Socrates is a man"
-- "John Hughes has a tattoo on the sole of his left foot"
+- "The lecturer has a tattoo on the sole of his left foot"
 - 123 + 345 == 567
 - reverse [] == []
 - p(1235) terminates
-**** Open propositions:
-- "/X/ is a man"
-- "John Hughes has a tattoo on /X/"
-- (sin /X/)² + (cos /X/)² == 1
-- reverse (/X/ ++ /Y/) == reverse /Y/ ++ reverse /X/
-- p(/X/) terminates
+- there exists an x such as p(x) terminates 
 
-(The above statements _may_ be made true for some value of the (meta-)variables /X/, /Y/)
+- "X is a man"
+- "The lecturer has a tattoo on X"
+- sin² x + cos² x == 1
+- reverse (x ++ y) == reverse y ++ reverse x
+- p(x) terminates
 
-*** Notion: Rules
-(An axiom is just a rule without premise)
-**** Example: conjunction
+** Notion: Free variables, open and closed propositions
+A variable is a variable (an unknown) which is not bound by any
+quantifier. Examples:
 
-#+begin_example
-   A        B                   <--- premises
-----------------
-      A ∧ B                     <--- conclusion
+- Socrates, 1235, John Hughes, cos: are not variables (they are fixed
+  entities, they have a definition)
 
-
-
-     A ∧ B
-----------------
-       A
-
-     A ∧ B
-----------------
-       B
-#+end_example
-
-**** Example: specialization
-#+begin_example
-      ∀x. A(x) ⇒ B(x)          A(a)
-----------------------------------------
-           B(a)
-#+end_example
-
-Famously:
-#+begin_example
-   ∀x. Man(x) ⇒ Mortal(x)          Man(Socrates)
- ------------------------------------------------
-                   Mortal(Socrates)
-#+end_example
-
-**** Example(⋆⋆⋆⋆): application
-#+begin_example
-   ∀x:A ⇒ B(x)          a:A
-----------------------------
-           B(a)
-#+end_example
+- In "X is a man" or "reverse (x ++ y) == reverse y ++ reverse x": x is a free variable
+- In "there exists an x such as p(x) terminates", is bound. It is not free.
 
 
-Famously:
-#+begin_example
-   ∀x:Man ⇒ Mortal(x)          Socrates : Man
- ------------------------------------------------
-                   Mortal(Socrates)
-#+end_example
+We can then establish a distinction between /closed/ and /open/
+propositions. An open propostition is a proposition which has at least
+one /free/ variable in it.
 
-Note the similarity with function application!
+In the context of logic programming, a free variable is often called a
+/meta-variable/.
 
-*** Proof
+Remarks: 
+- A closed proposition which can be proved ("is true") is called a
+  /Theorem/.
+- In mathematics, sometimes the quantifiers are omitted. You can read:
+  "sin² x + cos² x == 1 is a Theorem". What is meant is "∀x. sin² x +
+  cos² x == 1 is a Theorem".
 
-derive a theorem from a number of axioms, using the rules:
+The idea of logic programming is to specify values by propositions
+that they have to satisfy. 
 
-#+begin_example
-   axiom1   axiom4                              axiom2
- --------------------- principle           -------------- principle ...
-   quux                                         foo
-  ----------------------------------------------------------- principle ....
-                        bar
-#+end_example
-
-** Syntax
+** Curry
 In this lecture I use the [[http://en.wikipedia.org/wiki/Curry_(programming_language)][Curry]] syntax. 
-(Similar to Haskell, plus a couple extra features)
-*** Read (as needed)
-   [[http://www-ps.informatik.uni-kiel.de/currywiki/documentation/tutorial][the Curry tutorial]]
+
+The syntax of Curry is similar to Haskell. In fact, most of the simple
+Haskell programs we have seen so far can run unmodified in the Curry
+interpreter. However, here we will be interested in the logical
+features of Curry.
+
+In Curry a proposition is given the type ~Success~. We have two
+primitive ways to define propositions
+
+- Constrained equality operator ~=:=~. Given to expressions of any type, we can specify
+  that they should be equal using the operator ~=:=~.
+- Conjuction operator ~&~. Given to propositions, we can construct
+  their conjunction.
+
+Examples:
+:  x =:= 4
+:  (x =:= 4) & (x =:= 5)
+
+One can then ask if there is any value of the free variable ~x~ which
+makes the above propositions true. ("succeed")
+
+Type at the prompt:
+:  x =:= 4 where x free
+or
+:  (x =:= 4) & (x =:= 5) where x free
+or
+: x ++ [3,4] =:= [1,2,3,4]  where x free
+
+In general, in Curry, we can declare a meta-variable /x/ using the
+"where /x/ free" construct.
+#+begin_example
+f = ... x ... x ....
+    where x free
+#+end_example
+
+*** Read (as needed) [[http://www-ps.informatik.uni-kiel.de/currywiki/documentation/tutorial][the Curry tutorial]]
 *** Interpreter
-- Install PAKCS (recommended)
+Install either PAKCS or [[http://www-ps.informatik.uni-kiel.de/kics2/][KiCS2]]:
+
+- PAKCS
   + MacOS (tested on Lion) install instructions:
     - Install Haskell platform
     - For some reason the Haskell platform seems confused with the
@@ -2348,42 +2341,46 @@ In this lecture I use the [[http://en.wikipedia.org/wiki/Curry_(programming_lang
   + Linux (tested on Ubuntu Oneiric):
     - Install swi-prolog *5.x*
       : sudo aptitude install swi-prolog
-    - download packs Linux binary http://www.informatik.uni-kiel.de/~pakcs/download/pakcs_Linux.tar.gz
+    - download packs Linux binary
+      + 32 bit: http://www.informatik.uni-kiel.de/~pakcs/download/pakcs-1.11.1-i386-Linux.tar.gz
+      + 64 bit: http://www.informatik.uni-kiel.de/~pakcs/download/pakcs-1.11.1-amd64-Linux.tar.gz
     - untar
-    - make     
-  + Run the interpreter and load file:   
+    - make
+    If the installation says you need libgmp, try this package:
+      : sudo apt-get install libgmp3c2
+  + Run the interpreter and load file:
      :  .../pakcs/bin/pakcs
      :  :l Family.curry  
-- ... or just use web interface: http://www-ps.informatik.uni-kiel.de/~mh/pakcs/curryinput_c2p.cgi
-*** TODO Also look into KiCS2 http://www-ps.informatik.uni-kiel.de/kics2/
+  + The [[http://www-ps.informatik.uni-kiel.de/~mh/pakcs/curryinput_c2p.cgi][web interface of PAKCS]] can also be used for small examples.
+
+- KiCS2
+  + More straightforward to install, at least on Linux. See the
+    instructions [[http://www-ps.informatik.uni-kiel.de/kics2/download/][here]].
+
+** Notion: ground terms
+The distinction between open/closed extends to arbitrary expressions
+(terms). We say that a term is ground if it has no free variable.
+
+Note that in other paradigms, have been working with ground terms
+only: a variable was always bound 'somewhere'.
 ** Unification
 
-We introduce two new concepts at once:
-- Meta-variable
-- Unification
+The ~=:=~ specifies that that two values should be /unified/.
 
-In Curry, we can declare a meta-variable /x/ using the "where /x/ free"
-construct.
+On ground terms, ~=:=~ behaves as ~==~ (equality test). However, if
+one side is a meta-variable, it /binds/ it.
+
+For example, after performing the following unification ~x~ is /bound/ to ~'a'~.
 #+begin_example
-f = ... x ... x ....
-    where x free
+  x =:= 'a'
 #+end_example
-
-Two (arbitrary) values can be unified using the =:= operator.  On
-regular values, =:= behaves as == (equality test). However, if one
-side is a meta-variable, it /binds/ it.
-
-For example, after 
-#+begin_example
-  x  =:=  'a'
-#+end_example
-x is /bound/ to 'a'.
 
 Unification is even more general than that: unification can bind
-multiple variables at once. For example, assume the following data type
+multiple variables at once. For example, assume the following data
+type
 : data Tree = Leaf Int | Bin Tree Tree
 
-and the (unbound) meta-variables x and y. Then, after
+and the (unbound) meta-variables ~x~ and ~y~. Then, after
 : Bin (Leaf x) y =:= Bin (Leaf 1) (Bin (Leaf 2) (Leaf 3))
 
 we have
@@ -2395,24 +2392,20 @@ are aliased). That is, if we have
 : x =:= y 
 
 and later
-: y  =:=  2
+: y =:= 2
 
 then
 : x = 2
 
 Note that aliasing is symmetric.
 
-
-- Terminology: 
-  - When a term contains no meta-variable, it is sometimes called "a ground
-    term".
-
 Note that, in Curry, regular arithmetic works only on ground terms.
 : x + 2
 :   where x free 
-fails
+fails 
 
-*** Trivia (⋆): what are the bindings after...
+(actually, KiCS2 is more clever and returns something!)
+*** Exercise (⋆): what are the bindings after...
 
  1) 
     : 2 =:= x
@@ -2422,6 +2415,8 @@ fails
     : [x,y,z] =:= [w,x,y] 
 
 *** Unification failures
+Sometimes, the unification procedule /fails/. This can be caused by
+one of the following reasons:
 **** Different structures
 
 The query 
@@ -2450,18 +2445,34 @@ fails, because x cannot be unified with something where occurs.
   recursive behavior.
 *** Exercise (⋆⋆⋆)
 Write an algorithm implementing the above specification.
-*** Implementing unification in an imperative language (a sketch)
+*** Implementing unification in an imperative language
 
-Have indirection for meta-variables occurrences; indirection for meta
-(meta = unbound / ground / meta).  After unifying, overwrite the
-meta-variable with its value
+A possible way to implement unification, using side effects is the
+following. Each occurence of a meta-variable should be represented by
+a reference to the meta-variable. When the unification algorithm gets
+a constraint of the form
+: variable = value
+then the meta-variable can be overwritten with the ~value~ above.
+
+This works even if the value is a meta-variable itself (call it
+~y~). Indeed, the unification will overwrite the original
+meta-variable with a reference to ~y~. Later, when ~y~ becomes bound,
+it will be overwritten with a value --- and all the references to it
+will take the new value of ~y~, including the ones created by
+unification.
 
 **** Question
-how do we reconciliate referential transparency with the need to
+How do we reconciliate referential transparency with the need to
 "update" the bindings of meta-variables?
+
+Answer: if a piece of code works on an unbound variable, it really is
+independent of is value. Therefore if the variable is bound later to
+an actual value, the "update" has no effect on the results obtained.
 
 *** (✪) Reading
 Wikipedia has a [[http://en.wikipedia.org/wiki/Unification_(computer_science)][good article]] on unification.
+** Example 
+
 ** Transformation: Functions to relations
 From "classic" math: a function is a graph:
 
