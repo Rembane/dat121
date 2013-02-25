@@ -56,7 +56,7 @@ See table below for detail of contents.
 | EX 6 | Exercises marked with @6 in file:All.pdf                                            |
 | LP 2 | Relations, Search as list of successes                                              |
 | EX 7 | Exercises marked with @7 in file:All.pdf                                            |
-| Q&A  | Questions and answers                                                               |
+| Q&A  | Solutions to (part of) sample exams                                                 |
 
 Note: the contents of each exercise session is about the topics
 covered in the two previous lectures. Remember to re-fetch the
@@ -98,7 +98,7 @@ Items:
 ***** 2013
 - Different style of exercise sessions (less interactive)
 - More course material produced
-**** Study climate
+**** Study climate (communication, level of workload, tutorials)
 - Good, maybe bad time for lectures in early morning
 **** Problematic course items; can resources be used better?
 - See below planned changes for next year.

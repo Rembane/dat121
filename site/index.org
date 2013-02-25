@@ -5,6 +5,7 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
+- <2013-02-25 Mon> Another [[file:exam201208.pdf][sample exam]] is available.
 - <2013-02-15 Fri> Answers for week 5 and questions for week 6
   [[file:All.pdf][ready]].
 - <2013-02-21 Thu> Both the exams TDA382 Parallell Programmering and
@@ -72,8 +73,7 @@ See [[file:Schedule.org][here]].
   + See [[file:Schedule.org::timetable][the schedule]] for which exercises you need to prepare for each
     session.
 *** Course evaluation
-- [[https://student.portal.chalmers.se/en/studies/pages/courseevaluation.aspx][Overview of the process]]
-- [[https://document.chalmers.se/workspaces/chalmers/hogskolegemensamma5051/internt/kursutvarderingar/vad-ar-detta2740][Details]]
+- For an overview of the process, see [[http://www.chalmers.se/insidan/SV/utbildning-och-forskning/grundutbildning/undervisningsstod-for/kursutvarderingar][here]].
 - See Designated representatives in [[file:Schedule.org][the schedule]].
 *** Reading material
 + Unfortunately, I do not know of a single textbook covering all the
