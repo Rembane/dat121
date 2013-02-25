@@ -2444,7 +2444,28 @@ fails, because x cannot be unified with something where occurs.
   parameters can be unified simultaneously. Note that this is a
   recursive behavior.
 *** Exercise (⋆⋆⋆)
-Write an algorithm implementing the above specification.
+Write an algorithm implementing the above specification. Hints
+- the unification algorithm should return a substitution from
+  metavariables to terms.
+- the unification algorithm should be generalised to a list of
+  unifications
+
+**** Answer.
+
+Assume a list of assertions ~ts~ of the form ~{t₁=t'₁,...}~ and a
+substitution ~s~. If ~ts~ is empty, the result is ~s~. Otherwise extract the
+first assertion in ~ts~ and proceed by case analysis:
+| First assertion in ~s~            | Action                                                          |
+|-----------------------------------+-----------------------------------------------------------------|
+| t = t                             | continue                                                        |
+| f(t₁,...) = f(t'₁,...)            | add the assertions t₁=t'₁,... to ts                             |
+| f(t₁,...) = g(t'₁,...)            | fail                                                            |
+| x = t where x occurs in t         | fail                                                            |
+| x = t where x does not occur in t | apply the substitution ~x ==> t~ to ~s~ and ~ts~, add it to ~s~ |
+| t = x                             | restart with x = t                                              |
+
+In code:
+#+INCLUDE "Unify.hs" src haskell
 *** Implementing unification in an imperative language
 
 A possible way to implement unification, using side effects is the
