@@ -5,7 +5,8 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
-- <2013-02-28 Thu> The answer for [[file:fib.c][recursive fibonacci with explicit stack]] that was requested in one of the exercise session groups is available.
+- <2013-02-28 Thu> The answer for that was requested in one of the
+  exercise session groups is available. See exercise number 33.
 - <2013-02-25 Mon> Another [[file:exam201208.pdf][sample exam]] is available.
 - <2013-02-15 Fri> Answers for week 5 and questions for week 6
   [[file:All.pdf][ready]].
@@ -17,7 +18,7 @@ Looking for [[file:Lectures.org][the lecture notes]]?
 - <2013-02-18 Mon> Uploaded video on [[file:Thunks.mov][explicit thunks]].
 - <2013-02-12 Tue> Answers for week 3 and questions for week 4
   [[file:All.pdf][ready]]. An [[file:exam201203.pdf][example exam]] is available.
-- <2013-02-07 Thu> Due to miscommunication, the exercise session EX 3
+- <2013-02-07 Thu> Due to miscommunication, the exercise session EX g3
   was not given on Tuesday Feb 5 at 13:15. It will be given again on
   Tuesday Feb 12 at 8:00 instead for those who have missed it. Sorry
   for the inconvenience.
