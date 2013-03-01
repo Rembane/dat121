@@ -1147,12 +1147,17 @@ Some more laws, which all translate to isomorphisms:
 
 *** Example
 
+A boolean can be either of two given specific values. Hence:
+
 :   Bool ≅ 1 + 1
 
 In Haskell syntax one must choose tags:
 
 : data Bool = True | False
-*** Count the number of values
+*** Counting
+
+Reading the type expression as a natural number gives you the number
+of distinct values that the type has:
 
 : Bool × Bool = (1 + 1) × (1 + 1)
 : Bool + Bool = (1 + 1) + (1 + 1) 
@@ -1429,7 +1434,8 @@ multiply n xs = case xs of
 
 Downsides:
 - explosion of the code size
-- maybe impossible! (eg. the code of map is not available -- map itself is abstract)
+- maybe impossible! (e.g. if the code of map is not available; that is
+  if ~map~ itself is abstract)
 
 *** Transformation: Defunctionalisation (explicit <<closures>>)
 **** Example
@@ -2248,6 +2254,7 @@ entities. The statement can be true, false, or undecided. Examples:
 - reverse [] == []
 - p(1235) terminates
 - there exists an x such as p(x) terminates 
+- ∀x. sin² x + cos² x == 1
 
 - "X is a man"
 - "The lecturer has a tattoo on X"
@@ -2357,6 +2364,26 @@ Install either PAKCS or [[http://www-ps.informatik.uni-kiel.de/kics2/][KiCS2]]:
   + More straightforward to install, at least on Linux. See the
     instructions [[http://www-ps.informatik.uni-kiel.de/kics2/download/][here]].
 
+** Paradigm
+- Dogma: no more functions, only relations
+  + Y = f(X) is replaced by f(X,Y)
+  + if X and Y are known, f(X,Y) is a testable proposition
+- Provide a number of facts (axioms/rules)
+- Let the computer search for an assignment of variables that make
+  some statement true (proof)
+- Invertible programs
+  + if X known, Y is computed (f(X))
+  + if Y known, X is computed (f-1(Y))  
+  + Compute both directions with one piece of code
+  + Very cool!!!! (parser/pretty-printer, compiler/decompiler...)
+- Sadly, often inefficient
+  + Performance of functions inverted using the above recipe can be
+    terrible.
+  + As far as I know, there does not exist a "sufficiently smart
+    compiler" for logic programming yet.
+  + restricted to very specific domains
+** Example
+  Family tree, see below.
 ** Notion: ground terms
 The distinction between open/closed extends to arbitrary expressions
 (terms). We say that a term is ground if it has no free variable.
@@ -2395,7 +2422,7 @@ and later
 : y =:= 2
 
 then
-: x = 2
+: x = y = 2
 
 Note that aliasing is symmetric.
 
@@ -2410,8 +2437,10 @@ fails
  1) 
     : 2 =:= x
  2) 
-    : [x,1] =:= [2,y]
+    : [] =:= [x,y]
  3) 
+    : [x,1] =:= [2,y]
+ 4) 
     : [x,y,z] =:= [w,x,y] 
 
 *** Unification failures
@@ -2453,7 +2482,8 @@ Write an algorithm implementing the above specification. Hints
 **** Answer.
 
 Assume a list of assertions ~ts~ of the form ~{t₁=t'₁,...}~ and a
-substitution ~s~. If ~ts~ is empty, the result is ~s~. Otherwise extract the
+substitution ~s~. A substitution is a mapping from free variables to
+terms. If ~ts~ is empty, the result is ~s~. Otherwise extract the
 first assertion in ~ts~ and proceed by case analysis:
 | First assertion in ~s~            | Action                                                          |
 |-----------------------------------+-----------------------------------------------------------------|
@@ -2492,8 +2522,6 @@ an actual value, the "update" has no effect on the results obtained.
 
 *** (✪) Reading
 Wikipedia has a [[http://en.wikipedia.org/wiki/Unification_(computer_science)][good article]] on unification.
-** Example 
-
 ** Transformation: Functions to relations
 From "classic" math: a function is a graph:
 
@@ -2517,30 +2545,8 @@ In the following [[file:Lists.curry][example]], we see transform the List functi
 and reverse to relations.
 #+INCLUDE "Lists.curry" src curry
 
-** Paradigm: pure logic
-- No longer necessary to restrict oneself to relations that describe
-  functions.
-- Dogma: no more functions, only relations
-  + Y = f(X) is replaced by f(X,Y)
-  + if X and Y are known, f(X,Y) is a testable proposition
-- Provide a number of facts (axioms/rules)
-- Let the computer search for an assignment of variables that make
-  some statement true (proof)
-- Invertible programs
-  + if X known, Y is computed (f(X))
-  + if Y known, X is computed (f-1(Y))  
-  + Compute both directions with one piece of code
-  + Very cool!!!! (parser/pretty-printer, compiler/decompiler...)
-- Sadly, often inefficient
-  + Performance of functions inverted using the above recipe can be
-    terrible.
-  + As far as I know, there does not exist a "sufficiently smart
-    compiler" for logic programming yet.
-  + restricted to very specific domains
-
 ** Other example: family tree
 #+INCLUDE "Family.curry" src curry
-file:Family.curry
 There are sometimes more than one way to satisfy a relation!
 *** Backtracking
 
@@ -2649,9 +2655,14 @@ Each free variable must range over its possible values.
 **** Translate unification
 We do not cover this.
 
-*** Note: there are clever ways to implement logic programming.
-We won't discuss those here; there is lots of literature for the
-interested.
+*** Implementations
+Here we have barely touched the possible ways to implement logic
+programming.  For example, Curry uses 'narrowing' instead of
+backtracking searches. This is more efficient and allows to mix logic
+and functional paradigms.
+
+There are many more ways to implement logic programming.  We won't
+discuss those here; there is lots of literature for the interested.
 
 * Outlook
 

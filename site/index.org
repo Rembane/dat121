@@ -5,6 +5,7 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
+- <2013-02-28 Thu> The answer for [[file:fib.c][recursive fibonacci with explicit stack]] that was requested in one of the exercise session groups is available.
 - <2013-02-25 Mon> Another [[file:exam201208.pdf][sample exam]] is available.
 - <2013-02-15 Fri> Answers for week 5 and questions for week 6
   [[file:All.pdf][ready]].

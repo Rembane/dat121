@@ -52,9 +52,9 @@ See table below for detail of contents.
 | CP 1 | Resource-managing processes                                                         |
 | EX 5 | Exercises marked with @5 in file:All.pdf                                            |
 | CP 2 | Explicit continuations                                                              |
-| LP 1 | Unification                                                                         |
+| LP 1 | Intro to LP; Unification                                                            |
 | EX 6 | Exercises marked with @6 in file:All.pdf                                            |
-| LP 2 | Relations, Search as list of successes                                              |
+| LP 2 | Functions to Relations, Search as list of successes                                 |
 | EX 7 | Exercises marked with @7 in file:All.pdf                                            |
 | Q&A  | Solutions to (part of) sample exams                                                 |
 
