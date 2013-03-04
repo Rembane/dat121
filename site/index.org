@@ -5,8 +5,11 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
-- <2013-02-28 Thu> The answer for that was requested in one of the
-  exercise session groups is available. See exercise number 33.
+- <2013-03-04 Mon> By request, here is the [[file:OnlyQuestions.pdf][exercise questions with no answers]].
+- <2013-03-01 Fri> Answers for exercise session 6 are [[file:All.pdf][ready]].
+- <2013-02-28 Thu> The answer for the fibbonaci exercise that was
+  requested in one of the exercise session groups is available. See
+  exercise number 33.
 - <2013-02-25 Mon> Another [[file:exam201208.pdf][sample exam]] is available.
 - <2013-02-15 Fri> Answers for week 5 and questions for week 6
   [[file:All.pdf][ready]].

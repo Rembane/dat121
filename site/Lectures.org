@@ -2382,8 +2382,8 @@ Install either PAKCS or [[http://www-ps.informatik.uni-kiel.de/kics2/][KiCS2]]:
   + As far as I know, there does not exist a "sufficiently smart
     compiler" for logic programming yet.
   + restricted to very specific domains
-** Example
-  Family tree, see below.
+** Example: family tree
+#+INCLUDE "Family.curry" src curry
 ** Notion: ground terms
 The distinction between open/closed extends to arbitrary expressions
 (terms). We say that a term is ground if it has no free variable.
@@ -2545,9 +2545,9 @@ In the following [[file:Lists.curry][example]], we see transform the List functi
 and reverse to relations.
 #+INCLUDE "Lists.curry" src curry
 
-** Other example: family tree
-#+INCLUDE "Family.curry" src curry
-There are sometimes more than one way to satisfy a relation!
+** Understanding relations
+Relations are sometimes (often) not functions. There can be no
+solution to an equation, and sometimes there can be more than one.
 *** Backtracking
 
 If at some point one encounters a failure (for example unification
@@ -2566,20 +2566,23 @@ Example: solve the query:
 
 :  append [] ys zs = ys =:= zs 
 
-applies? Using it to rewrite the goal gives:
+applies? We try to unify the two calls to append and collect the
+equations. This succeeds and gives:
 
-:   ys =:= "hello"
+:   ys =:= zs 
 :        where ys free
 :              xs = []
+:              zs = "hello"
 
-Solving the unification constraint yields:
+Solving the remaining unification constraint yields:
 
 :   success
+:        where xs = []
 :        where ys = "hello"
-:              xs = []
 
 And this is our 1st solution. Now, we can /backtrack/ to the branching
-point A, and try the 2nd equation (I have renamed variables to avoid clashes):
+point A, and try the 2nd equation (I have renamed variables to avoid
+clashes):
 
 :   append (x:xs') ys zs = append xs' ys zs' &
 :                      zs =:= x:zs'
@@ -2622,8 +2625,10 @@ and thus the final solution:
 At this point one can backtrack to the point B, and continue with the
 2nd equation for append, etc.
 
-*** List of successes
+Note that this process works only if the program is written in the
+pure relational style.
 
+*** List of successes
 Explicit representation of disjunction. That is, suppose we want to
 encode the (inverse) of the Parent relation from file:Family.curry as
 a function children, such as:
@@ -2643,7 +2648,7 @@ exercise: write the function "parents", such as
 We can now translate sibling function as follows:
 
 : siblings x  :: Person -> [Person]
-: siblings x = map children
+: siblings x = concat (map children (parents x))
 
 this pattern is so common that there is special syntax for it: list
 comprehension.
@@ -2651,9 +2656,6 @@ comprehension.
 : siblings x = [ y | z <- parents x,  y <- children z]
 
 Each free variable must range over its possible values.
-
-**** Translate unification
-We do not cover this.
 
 *** Implementations
 Here we have barely touched the possible ways to implement logic
