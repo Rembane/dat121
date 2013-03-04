@@ -5,7 +5,10 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
-- <2013-03-04 Mon> By request, here is the [[file:OnlyQuestions.pdf][exercise questions with no answers]].
+- <2013-03-04 Mon> Tomorrow's lecture time will be for questions and
+  answers. Wednesday exercise session will be on a single exercise on
+  search (newly added), and a correction of last year's exam. By
+  request, here is the [[file:OnlyQuestions.pdf][exercise questions with no answers]].
 - <2013-03-01 Fri> Answers for exercise session 6 are [[file:All.pdf][ready]].
 - <2013-02-28 Thu> The answer for the fibbonaci exercise that was
   requested in one of the exercise session groups is available. See
