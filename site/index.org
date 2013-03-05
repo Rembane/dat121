@@ -5,6 +5,8 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
+- <2013-03-05 Tue> Removing the tail calls from the Ackermann function
+  is explained in exercise 37.
 - <2013-03-04 Mon> Tomorrow's lecture time will be for questions and
   answers. Wednesday exercise session will be on a single exercise on
   search (newly added), and a correction of last year's exam. By
