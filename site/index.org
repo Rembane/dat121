@@ -5,6 +5,7 @@
 Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
+- The exam review will happen on April 10th at 10.00 in room 6128.
 - <2013-03-05 Tue> Removing the tail calls from the Ackermann function
   is explained in exercise 37.
 - <2013-03-04 Mon> Tomorrow's lecture time will be for questions and
