@@ -2,9 +2,9 @@
 #+EMAIL: bernardy@chalmers.se
 #+STYLE: <link rel="stylesheet" type="text/css" href="pp.css" />
 
-Looking for [[file:Lectures.org][the lecture notes]]?
 
 * Announcements
+- <2013-04-17 Wed> The exam (March) is [[file:exam201303.pdf][available]].
 - The exam review will happen on April 8th 10.00-11.00, in room 4128.
 - <2013-03-05 Tue> Removing the tail calls from the Ackermann function
   is explained in exercise 37.
@@ -37,105 +37,9 @@ Looking for [[file:Lectures.org][the lecture notes]]?
 - <2013-01-31 Thu> Answers for week 2 questions for week 3 [[file:All.pdf][ready]].
 - <2013-01-30 Wed> Uploaded videos: [[file:factorial.mov][recursion and stack]], [[file:factorial-tail.mov][tail recursion]].
 - <2013-01-21 Mon> Course begins
-* Organisation info
 
-- Programming paradigms
-- Chalmers Course code: DAT121
-- G.U. Course Code: DIT331
-
-** The teaching team
-+ JP Bernardy
-  - Course responsible & lecturer
-  - Room: EDIT 5469
-  - E-mail: bernardy (chalmers.se)
-+ Nikita Frolov
-  - Exercise tutor
-  - Room: EDIT 5461
-  - E-mail: frolov (chalmers.se)
-+ Dan Rosén
-  - Exercise tutor
-  - Room: EDIT 5453
-  - E-mail: danr (chalmers.se)
-
-** Schedule & Organisation
-*** Schedule
-See [[file:Schedule.org][here]].
-*** Formal requirements
-- Pass the exam
-- That's it!
-*** Informal requirements and learning aids
-- Do the exercises
-- Participate in the exercises correction sessions: see [[<<Exercises>>][below]] for details.
-- Attend the lectures
-- Prepare lectures by reading lecture notes and follow relevant links.
-*** Lectures
-- The lecture notes can be accessed here [[http://www.cse.chalmers.se/~bernardy/pp/Lectures.html][here]]
-- You can also use the source if you fancy emacs org-mode.
-- I prefer to have interaction during the lectures, so feel free to
-  interrupt me.
-*** <<Exercises>>
-- 2 groups (go to only 1 session).
-- Find out which is your group by using [[file:GroupAssignment.hs][this Haskell program]]. See [[file:Schedule.org::timetable][the schedule]] for times.
-- Prepare exercises.
-  + You should have a written copy of your solution with you if you
-    have one.
-  + To be able to follow the discussion, you should also bring a
-    printout of the questions.
-  + See [[file:Schedule.org::timetable][the schedule]] for which exercises you need to prepare for each
-    session.
-*** Course evaluation
-- For an overview of the process, see [[http://www.chalmers.se/insidan/SV/utbildning-och-forskning/grundutbildning/undervisningsstod-for/kursutvarderingar][here]].
-- See Designated representatives in [[file:Schedule.org][the schedule]].
-*** Reading material
-+ Unfortunately, I do not know of a single textbook covering all the
-  material in a suitable way. Therefore, [[file:Lectures.org][the lecture notes]] are the "master"
-  source for the course.
-+ The exercises [[file:All.pdf][(pdf)]] are also part of the course material.
-+ Single most relevant textbook: probably
-
-  + "Programming Languages -- Application and Interpretation", Shriram Krishnamurthi.
-
-  http://www.plai.org/
-#  http://www.cs.brown.edu/~sk/Publications/Books/ProgLangs/2007-04-26/
-
-  + but
-    * uses different structure
-    * uses scheme (LISP) syntax
-    * is written with MS and PhD students in mind
-
-  + Relevant parts
-    * Part I (To understand the point of view of the author)
-    * Shreds of part II
-    * Parts III, IV, VI, VII
-    * Part X (Ch. 24, 25)
-    * Part XI
-
-+ Other relevant books
-  - "Essentials of Programming Languages", Friedman, Wand and Haynes (http://www.eopl3.com/)
-  - "Concepts, Techniques, and Models of Computer Programming", Van Roy (http://www.info.ucl.ac.be/~pvr/book.html)
-  - ...
-
-** Outline of the course
-*** Brief exposition of each paradigm
-*** (Some) Transformations between paradigms
-*This is the focus of the course.*
-*** Learning outcomes
-**** Awareness of multiple paradigms
-First questions of the design phase: "How should I think about this
-problem? (Do I know a paradigm suitable to express the solution?)"
-**** Recognise "encoded" thoughts:
-+ what is the natural paradigm
-+ decode them
-
-From this point of view, this course teaches "design patterns", /in reverse/.
-
-**** Encode thoughts expressed in a paradigm in another one
-**** The exam questions will be similar to exercises
-Note in particular that exercises are integral part of the course material.
-
-
-
-
-
-
+* Course material and organisation
+ - [[file:Lectures.org][Lecture notes]]
+ - [[file:All.pdf][Exercises]]
+ - [[file:admin.org][Administrative and organisational info]]
 
